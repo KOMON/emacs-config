@@ -21,26 +21,30 @@
   :init (global-flycheck-mode))
 
 (use-package syntax-subword
+  :ensure t
   :config
   (setq syntax-subword-skip-spaces t)
   (global-syntax-subword-mode t))
 
 (use-package magit
+  :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
   :config
   (global-magit-file-mode 't))
 
 (use-package projectile
+  :ensure t
   :config
   (projectile-global-mode)
   (setq projectile-completion-system 'ivy))
 
 
-(use-package geiser)
+(use-package geiser
+  :ensure t)
 
 (use-package web-mode
-  :ensure
+  :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.phtml$" . web-mode))
   (defun my-web-mode-hook ()
@@ -53,6 +57,7 @@
   (add-hook 'web-mode-hook  'my-web-mode-hook))
 
 (use-package js
+  :ensure t
   :init
   (defun js-custom ()
     "js-mode-hook"
@@ -62,6 +67,7 @@
    'js-mode-hook 'js-custom))
 
 (use-package php-mode
+  :ensure t
   :init
   (defun php-custom ()
     "php-mode-hook"
@@ -74,18 +80,20 @@
   (add-hook 'php-mode-hook 'php-custom))
 
 (use-package dumb-jump
+  :ensure t
   :bind (("M-g o" . dumb-jump-go-other-window)
          ("M-g j" . dumb-jump-go))
   :config
   (setq dumb-jump-selector 'ivy))
 
 (use-package expand-region
-  :ensure
+  :ensure t
   :bind (("C-="     . er/expand-region)
          ("C-c x c" . er/contract-region)
          ("C-c x t" . er/mark-outer-tag)))
 
-(use-package hydra)
+(use-package hydra
+  :ensure t)
 
 (use-package ivy-mode
   :config
@@ -95,13 +103,15 @@
   :bind (("C-c C-r" . ivy-resume)
          ("C-x b"   . ivy-switch-buffer)))
 
-(use-package swiper)
+(use-package swiper
+  :ensure t)
 
 (defun djr/counsel-M-x ()
   (interactive)
   (counsel-M-x ""))
 
 (use-package counsel
+  :ensure t
   :bind (("M-x" . djr/counsel-M-x)
          ("M-y" . counsel-yank-pop)
          ("C-c C-j" . counsel-imenu)
@@ -120,39 +130,40 @@
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s"))
 
 (use-package counsel-projectile
+  :ensure t
   :config
   (counsel-projectile-mode))
 
 (use-package beacon
-  :ensure
+  :ensure t
   :config
   (beacon-mode 1)
   (setq beacon-color "white"))
 
 (use-package recentf
-  :ensure
+  :ensure t
   :config
   (recentf-mode 1)
   (setq recentf-max-saved-items 50)
   :bind ("C-x C-r" . ivy-recentf))
 
 (use-package rainbow-delimiters
-  :ensure
+  :ensure t
   :config
   (rainbow-delimiters-mode t))
 
 (use-package change-inner
-  :ensure
+  :ensure t
   :bind (("M-i" . change-inner)
          ("M-o" . change-outer)))
 
 (use-package zzz-to-char
-  :ensure
+  :ensure t
   :bind (("M-z" . zzz-up-to-char)
          ("M-Z" . zzz-to-char)))
 
 (use-package avy
-  :ensure
+  :ensure t
   :config (setq avy-keys
                 (nconc (number-sequence ?a ?z)
                        (number-sequence ?A ?Z)
@@ -162,7 +173,8 @@
          ("M-g a" . avy-goto-char-timer)))
 
 (use-package tramp
-  :config
+  :ensure t
+  :config 
   (setq tramp-default-method "ssh")
   (add-to-list 'tramp-remote-path "/usr/local/git/bin"))
 
@@ -268,7 +280,7 @@ static char *gnus-pointer[] = {
 \"###########.######\" };")) t)
  '(package-selected-packages
    (quote
-    (markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from- vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
  '(projectile-mode t nil (projectile))
  '(vc-annotate-background "#222222")
  '(vc-annotate-color-map
