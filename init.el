@@ -11,7 +11,8 @@
 (use-package package
   :config
   (add-to-list 'package-archives
-               '("melpa" . "http://melpa.org/packages/") )
+               '("melpa" . "http://melpa.org/packages/")
+               '("marmalade" . "http://marmalade-repo.org/packages/"))
   (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa"))
 
 (use-package flycheck
@@ -96,9 +97,14 @@
 
 (use-package swiper)
 
+(defun djr/counsel-M-x ()
+  (interactive)
+  (counsel-M-x ""))
+
 (use-package counsel
-  :bind (("M-x" . counsel-M-x)
+  :bind (("M-x" . djr/counsel-M-x)
          ("M-y" . counsel-yank-pop)
+         ("C-c C-j" . counsel-imenu)
          ("C-x C-f" . counsel-find-file)
          ("C-c g" . counsel-git)
          ("C-c j" . counsel-git-grep)
@@ -128,13 +134,7 @@
   :config
   (recentf-mode 1)
   (setq recentf-max-saved-items 50)
-  (defun ido-recentf-open()
-    "Use `ido-completing-read' to \\[find-file] a recent file"
-    (interactive)
-    (if (find-file (ido-completing-read "Find recent file: " recentf-list))
-        (message "Opening file...")
-      (message "Aborting")))
-  :bind ("C-x C-r" . ido-recentf-open))
+  :bind ("C-x C-r" . ivy-recentf))
 
 (use-package rainbow-delimiters
   :ensure
@@ -268,7 +268,7 @@ static char *gnus-pointer[] = {
 \"###########.######\" };")) t)
  '(package-selected-packages
    (quote
-    (avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
  '(projectile-mode t nil (projectile))
  '(vc-annotate-background "#222222")
  '(vc-annotate-color-map

@@ -5,7 +5,8 @@
       use-dialog-box nil
       visible-bell nil
       tooltip-use-echo-area t
-      redisplay-dont-pause t)
+      redisplay-dont-pause t
+      split-height-threshold nil)
 
 (setq-default indicate-empty-lines t
               indent-tabs-mode nil

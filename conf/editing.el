@@ -1,5 +1,4 @@
 (setq  initial-major-mode 'org-mode
-       ido-create-new-buffer 'always
        make-backup-files nil
        auto-save-default nil
        package-enable-at-startup t

@@ -49,6 +49,7 @@
 
 (keybind "C-x C-j" join-line)
 (keybind "C-j" newline-and-indent)
+(keybind "M-SPC" cycle-spacing)
 (global-unset-key (kbd "C-x C-z"))
 
 (provide 'keys)
