@@ -32,26 +32,30 @@
 (use-package string-inflection)
 
 (use-package syntax-subword
+  :ensure t
   :config
   (setq syntax-subword-skip-spaces t)
   (global-syntax-subword-mode t))
 
 (use-package magit
+  :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
   :config
   (global-magit-file-mode 't))
 
 (use-package projectile
+  :ensure t
   :config
   (projectile-global-mode)
   (setq projectile-completion-system 'ivy))
 
 
-(use-package geiser)
+(use-package geiser
+  :ensure t)
 
 (use-package web-mode
-  :ensure
+  :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.phtml$" . web-mode))
   (defun my-web-mode-hook ()
@@ -64,6 +68,7 @@
   (add-hook 'web-mode-hook  'my-web-mode-hook))
 
 (use-package js
+  :ensure t
   :init
   (defun js-custom ()
     "js-mode-hook"
@@ -73,6 +78,7 @@
    'js-mode-hook 'js-custom))
 
 (use-package php-mode
+  :ensure t
   :init
   (defun php-custom ()
     "php-mode-hook"
@@ -99,18 +105,20 @@
   (add-hook 'go-mode-hook 'go-custom))
 
 (use-package dumb-jump
+  :ensure t
   :bind (("M-g o" . dumb-jump-go-other-window)
          ("M-g j" . dumb-jump-go))
   :config
   (setq dumb-jump-selector 'ivy))
 
 (use-package expand-region
-  :ensure
+  :ensure t
   :bind (("C-="     . er/expand-region)
          ("C-c x c" . er/contract-region)
          ("C-c x t" . er/mark-outer-tag)))
 
-(use-package hydra)
+(use-package hydra
+  :ensure t)
 
 (use-package ivy-mode
   :config
@@ -124,7 +132,8 @@
   :config
   (ivy-rich-mode 1))
   
-(use-package swiper)
+(use-package swiper
+  :ensure t)
 
 (defun djr/counsel-M-x ()
   "Call counsel's extended execute without an initial ^."
@@ -134,6 +143,7 @@
 (use-package smex)
 
 (use-package counsel
+  :ensure t
   :bind (("M-x" . djr/counsel-M-x)
          ("M-y" . counsel-yank-pop)
          ("C-c C-j" . counsel-imenu)
@@ -152,39 +162,41 @@
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s"))
 
 (use-package counsel-projectile
+  :ensure t
   :config
-  (counsel-projectile-mode))
+  (counsel-projectile-mode)
+  :bind ("C-c p" . projectile-command-map))
 
 (use-package beacon
-  :ensure
+  :ensure t
   :config
   (beacon-mode 1)
   (setq beacon-color "white"))
 
 (use-package recentf
-  :ensure
+  :ensure t
   :config
   (recentf-mode 1)
   (setq recentf-max-saved-items 50)
   :bind ("C-x C-r" . ivy-recentf))
 
 (use-package rainbow-delimiters
-  :ensure
+  :ensure t
   :config
   (rainbow-delimiters-mode t))
 
 (use-package change-inner
-  :ensure
+  :ensure t
   :bind (("M-i" . change-inner)
          ("M-o" . change-outer)))
 
 (use-package zzz-to-char
-  :ensure
+  :ensure t
   :bind (("M-z" . zzz-up-to-char)
          ("M-Z" . zzz-to-char)))
 
 (use-package avy
-  :ensure
+  :ensure t
   :config (setq avy-keys
                 (nconc (number-sequence ?a ?z)
                        (number-sequence ?A ?Z)
@@ -194,7 +206,8 @@
          ("M-g a" . avy-goto-char-timer)))
 
 (use-package tramp
-  :config
+  :ensure t
+  :config 
   (setq tramp-default-method "ssh")
   (add-to-list 'tramp-remote-path "/usr/local/git/bin"))
 
@@ -254,7 +267,7 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  '(custom-enabled-themes (quote (wombat)))
  '(custom-safe-themes
    (quote
-    ("e2fd81495089dc09d14a88f29dfdff7645f213e2c03650ac2dd275de52a513de" "ed0b4fc082715fc1d6a547650752cd8ec76c400ef72eb159543db1770a27caa7" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "e0d42a58c84161a0744ceab595370cbe290949968ab62273aed6212df0ea94b4" "b3775ba758e7d31f3bb849e7c9e48ff60929a792961a2d536edec8f68c671ca5" "96998f6f11ef9f551b427b8853d947a7857ea5a578c75aa9c4e7c73fe04d10b4" "e9776d12e4ccb722a2a732c6e80423331bcb93f02e089ba2a4b02e85de1cf00e" "4ee4a855548a7a966fe8722401441499b0d8b2fcf3d12438f81e016b6efed0e6" "2a739405edf418b8581dcd176aaf695d319f99e3488224a3c495cb0f9fd814e3" "d411730c6ed8440b4a2b92948d997c4b71332acf9bb13b31e9445da16445fe43" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "ab04c00a7e48ad784b52f34aa6bfa1e80d0c3fcacc50e1189af3651013eb0d58" "04dd0236a367865e591927a3810f178e8d33c372ad5bfef48b5ce90d4b476481" "a0feb1322de9e26a4d209d1cfa236deaf64662bb604fa513cca6a057ddf0ef64" "17cda1304ba8d26d62bf247cab2c161d12957054b6be4477abb5972a74eea4e1" "715fdcd387af7e963abca6765bd7c2b37e76154e65401cd8d86104f22dd88404" "f9574c9ede3f64d57b3aa9b9cef621d54e2e503f4d75d8613cbcc4ca1c962c21" default)))
+    ("04dd0236a367865e591927a3810f178e8d33c372ad5bfef48b5ce90d4b476481" "17cda1304ba8d26d62bf247cab2c161d12957054b6be4477abb5972a74eea4e1" "2a739405edf418b8581dcd176aaf695d319f99e3488224a3c495cb0f9fd814e3" "4ee4a855548a7a966fe8722401441499b0d8b2fcf3d12438f81e016b6efed0e6" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "715fdcd387af7e963abca6765bd7c2b37e76154e65401cd8d86104f22dd88404" "96998f6f11ef9f551b427b8853d947a7857ea5a578c75aa9c4e7c73fe04d10b4" "a0feb1322de9e26a4d209d1cfa236deaf64662bb604fa513cca6a057ddf0ef64" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "ab04c00a7e48ad784b52f34aa6bfa1e80d0c3fcacc50e1189af3651013eb0d58" "b3775ba758e7d31f3bb849e7c9e48ff60929a792961a2d536edec8f68c671ca5" "d411730c6ed8440b4a2b92948d997c4b71332acf9bb13b31e9445da16445fe43" "e0d42a58c84161a0744ceab595370cbe290949968ab62273aed6212df0ea94b4" "e2fd81495089dc09d14a88f29dfdff7645f213e2c03650ac2dd275de52a513de" "e9776d12e4ccb722a2a732c6e80423331bcb93f02e089ba2a4b02e85de1cf00e" "ed0b4fc082715fc1d6a547650752cd8ec76c400ef72eb159543db1770a27caa7" "f27c3fcfb19bf38892bc6e72d0046af7a1ded81f54435f9d4d09b3bff9c52fc1" "f9574c9ede3f64d57b3aa9b9cef621d54e2e503f4d75d8613cbcc4ca1c962c21" default)))
  '(diary-entry-marker (quote font-lock-variable-name-face))
  '(ediff-split-window-function (quote split-window-horizontally))
  '(emms-mode-line-icon-image-cache
@@ -307,7 +320,7 @@ static char *gnus-pointer[] = {
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (abyss-theme ac-php alect-themes avy beacon change-inner company company-php counsel counsel-projectile dart-mode django-mode doom-themes dumb-jump emmet-mode exec-path-from-shell expand-region flx flx-ido flycheck flymake-python-pyflakes geiser git-gutter gnu-apl-mode go-mode gruvbox-theme hamburg-theme ido-grid-mode ido-ubiquitous ido-vertical-mode ivy ivy-hydra ivy-mode ivy-phpunit ivy-prescient jinja2-mode loccur lua-mode magit markdown-mode material-theme nginx-mode organic-green-theme paredit php-mode projectile puppet-mode racket-mode rainbow-delimiters slime smex sql-indent string-inflection sublime-themes swiper syntax-subword use-package vagrant-tramp web-mode wgrep yaml-mode zenburn-theme smex)))
  '(projectile-mode t nil (projectile))
  '(tab-width 4)
  '(vc-annotate-background "#222222")
