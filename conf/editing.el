@@ -4,7 +4,8 @@
        package-enable-at-startup t
        shift-select-mode nil
        tab-width 2
-       create-lockfiles nil)
+       create-lockfiles nil
+       kill-ring-max 500)
 
 (delete-selection-mode t)
 (transient-mark-mode t)

@@ -1,0 +1,202 @@
+# -*- mode: snippet -*-
+# name: Magento Model Integration Test
+# key: mage-model-itest
+# --
+
+namespace ${1:`(format "%s\\Model" (yas-mage/module-namespace))`};
+
+use PHPUnit\Framework\TestCase;
+use $1\\$2Repository;
+
+/**
+ * Class $2Test
+ *
+ * @package $1
+ */
+class ${2:Model}Test extends TestCase
+{
+    /**
+     * Vendor repository
+     *
+     * @var \TFAW\Vendor\Model\VendorRepository
+     */
+    protected $vendorRepository;
+    /**
+     * Vendor
+     *
+     * @var \TFAW\Vendor\Model\Vendor
+     */
+    protected $vendor;
+    /**
+     * Vendor id
+     *
+     * @var int
+     */
+    protected $vendorId;
+    /**
+     * Vendor name
+     *
+     * @var string
+     */
+    protected $vendorName;
+    /**
+     * Vendor code
+     *
+     * @var string
+     */
+    protected $vendorCode;
+    /**
+     * Object manager
+     *
+     * @var \Magento\Framework\TestFramework\Unit\Helper\ObjectManager
+     */
+    protected $objectManager;
+
+    /**
+     * Setup
+     *
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     *
+     * @return void
+     */
+    protected function setUp()
+    {
+        $this->objectManager
+            = \Magento\TestFramework\Helper\Bootstrap::getObjectManager();
+        $this->vendorRepository
+            = $this->objectManager->create(VendorRepository::class);
+        $this->vendorId = 1;
+        $this->vendorName = 'Diamond Comic Distributors';
+        $this->vendorCode = '1';
+        $this->vendor = $this->vendorRepository->getById($this->vendorId);
+    }
+
+    /**
+     * Test getVendorId
+     *
+     * @return void
+     */
+    public function testGetVendorId()
+    {
+        $this->assertEquals($this->vendorId, $this->vendor->getVendorId());
+    }
+
+    /**
+     * Test getName
+     *
+     * @return void
+     */
+    public function testGetName()
+    {
+        $this->assertEquals($this->vendorName, $this->vendor->getName());
+    }
+
+    /**
+     * Test getCode
+     *
+     * @return void
+     */
+    public function testGetCode()
+    {
+        $this->assertEquals($this->vendorCode, $this->vendor->getCode());
+    }
+
+    /**
+     * Test getCreatedAt
+     *
+     * @return void
+     */
+    public function testGetCreatedAt()
+    {
+        $this->assertNotNull($this->vendor->getCreatedAt());
+        $this->assertNotFalse(strtotime($this->vendor->getCreatedAt()));
+    }
+
+    /**
+     * Test getUpdatedAt
+     *
+     * @return void
+     */
+    public function testGetUpdatedAt()
+    {
+        $this->assertNotNull($this->vendor->getCreatedAt());
+        $this->assertNotFalse(strtotime($this->vendor->getUpdatedAt()));
+    }
+
+    /**
+     * Test setVendorId
+     *
+     * @return void
+     */
+    public function testSetVendorId()
+    {
+        $this->assertEquals($this->vendorId, $this->vendor->getVendorId());
+        $this->assertSame($this->vendor, $this->vendor->setVendorId(1000));
+        $this->assertEquals(1000, $this->vendor->getVendorId());
+        $this->assertSame(
+            $this->vendor,
+            $this->vendor->setVendorId($this->vendorId)
+        );
+    }
+
+    /**
+     * Test setName
+     *
+     * @return void
+     */
+    public function testSetName()
+    {
+        $this->assertEquals($this->vendorName, $this->vendor->getName());
+        $this->assertSame($this->vendor, $this->vendor->setName('foo'));
+        $this->assertEquals('foo', $this->vendor->getName());
+        $this->assertSame(
+            $this->vendor,
+            $this->vendor->setName($this->vendorName)
+        );
+    }
+
+    /**
+     * Test setCode
+     *
+     * @return void
+     */
+    public function testSetCode()
+    {
+        $this->assertEquals($this->vendorCode, $this->vendor->getCode());
+        $this->assertSame($this->vendor, $this->vendor->setCode('1000'));
+        $this->assertEquals('1000', $this->vendor->getCode());
+        $this->assertSame(
+            $this->vendor,
+            $this->vendor->setCode($this->vendorCode)
+        );
+    }
+
+    /**
+     * Test setCreatedAt
+     *
+     * @return void
+     */
+    public function testSetCreatedAt()
+    {
+        $newDate = '2018-01-01 00:00:00';
+        $currentDate = $this->vendor->getCreatedAt();
+        $this->assertSame($this->vendor, $this->vendor->setCreatedAt($newDate));
+        $this->assertEquals($newDate, $this->vendor->getCreatedAt());
+        $this->assertSame($this->vendor, $this->vendor->setCreatedAt($currentDate));
+    }
+
+    /**
+     * Test setUpdatedAt
+     *
+     * @return void
+     */
+    public function testSetUpdatedAt()
+    {
+        $newDate = '2018-01-01 00:00:00';
+        $currentDate = $this->vendor->getUpdatedAt();
+        $this->assertSame($this->vendor, $this->vendor->setUpdatedAt($newDate));
+        $this->assertEquals($newDate, $this->vendor->getUpdatedAt());
+        $this->assertSame($this->vendor, $this->vendor->setUpdatedAt($currentDate));
+    }
+
+}

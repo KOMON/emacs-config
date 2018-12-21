@@ -1,0 +1,4 @@
+# key: mage-namespace
+# name: Magento Namespace
+# --
+namespace ${1:`(if (yas-mage/integration-test-p) (yas-mage/integration-test-namespace) (yas-mage/namespace))`};

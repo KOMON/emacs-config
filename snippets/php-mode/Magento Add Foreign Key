@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Magento Add Foreign Key
+# key: mage-add-fk
+# --
+->addForeignKey(
+    $installer->getFkName(
+       '$1',
+       ${2:Model}Interface::$3,
+       '$4',
+       ${5:Model}Interface::$6
+    ),
+    $2Interface::$3,
+    $installer->getTable('$1'),
+    $5Interface::$6,
+    Table::ACTION_CASCADE
+)

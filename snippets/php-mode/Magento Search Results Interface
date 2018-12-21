@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+# name: Magento Search Results Interface
+# key: mage-isearch-results
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+use Magento\Framework\Api\SearchResultsInterface;
+
+interface ${2:Model}SearchResultsInterface extends SearchResultsInterface
+{
+    /**
+     * Get ${2:$(downcase yas-text)} list
+     *
+     * @return $1\\$2Interface[]
+     */
+    public function getItems();
+
+    /**
+     * Set ${2:$(downcase yas-text)} list
+     *
+     * @param $1\\$2Interface[] $items
+     * @return SearchResultsInterface
+     */
+    public function setItems(array $items);
+}

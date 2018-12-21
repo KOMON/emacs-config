@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: Magento ResourceModel Collection
+# key: mage-resource-model-collection
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+/**
+ * Class Collection
+ * @package $1
+ */
+class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection
+{
+    /**
+     * Constructor
+     *
+     * @return null
+     */
+    public function _construct()
+    {
+        $this->_init('${2:`(yas-mage/module-namespace)`}\Model\\${3:`(djr/parent-directory)`}', '$1');
+    }
+}

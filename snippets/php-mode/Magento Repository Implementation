@@ -1,0 +1,214 @@
+# key: mage-repository
+# name: Magento Repository Implementation
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+use ${2:`(yas-mage/module-namespace)`}\Api\Data;
+use $2\Api\\$3RepositoryInterface;
+use $2\Api\\$3InterfaceFactory;
+use $2\Model\\$3Factory;
+use $2\Model\ResourceModel\\$3 as $3Resource;
+use $2\Model\ResourceModel\\$3\CollectionFactory as $3CollectionFactory;
+use Magento\Framework\Api\SearchCriteriaInterface;
+use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
+use Magento\Framework\Api\SearchResultsInterface;
+use Magento\Framework\Api\SearchResultsInterfaceFactory;
+use Magento\Framework\Api\DataObjectHelper;
+use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class ${3:Model}Repository implements $3RepositoryInterface
+{
+    /**
+     * Resource
+     *
+     * @var $3Resource
+     */
+    protected $resource;
+
+    /**
+     * $3 Factory
+     *
+     * @var $3Factory
+     */
+    protected \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory;
+
+    /**
+     * $3 collection factory
+     *
+     * @var $3CollectionFactory
+     */
+    protected $${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory;
+
+    /**
+     * $3 factory
+     *
+     * @var $3InterfaceFactory
+     */
+    protected $data$3Factory;
+
+    /**
+     * Search Criteria Collection Processor
+     *
+     * @var CollectionProcessorInterface
+     */
+    protected $collectionProcessor;
+    
+    /**
+     * Search results factory
+     *
+     * @var SearchResultsInterfaceFactory
+     */
+    protected $searchResultsFactory;
+
+    /**
+     * Data object Helper
+     *
+     * @var DataObjectHelper
+     */
+    protected $dataObjectHelper;
+
+    /**
+     * Data object processor
+     *
+     * @var DataObjectProcessor
+     */
+    protected $dataObjectProcessor;
+
+    /**
+     * $3Repository constructor
+     *
+     * @param $3Resource $resource
+     *
+     * @param $3Factory \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory
+     *
+     * @param $3CollectionFactory \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory
+     *
+     * @param $3InterfaceFactory $data$3Factory
+     *
+     * @param CollectionProcessorInterface $collectionProccessor
+     * 
+     * @param SearchResultsInterfaceFactory $searchResultsFactory
+     *
+     * @param DataObjectHelper $dataObjectHelper
+     *
+     * @param DataObjectProcessor $dataObjectProcessor
+     *
+     * @return null
+     */
+    public function __construct(
+        $3Resource $resource,
+        $3Factory \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory,
+        $3CollectionFactory \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory,
+        $3InterfaceFactory $data$3Factory,
+        CollectionProcessorInterface $collectionProcessor,
+        SearchResultsInterfaceFactory $searchResultsFactory,
+        DataObjectHelper $dataObjectHelper,
+        DataObjectProcessor $dataObjectProcessor
+    ) {
+        $this->resource = $resource;
+        $this->${3:$(string-inflection-lower-camelcase-function yas-text)}Factory = \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory;
+        $this->${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory = \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory;
+        $this->data$3Factory = $data$3Factory;
+        $this->collectionProcessor = $collectionProcessor;
+        $this->searchResultsFactory = $searchResultsFactory;
+        $this->dataObjectHelper = $dataObjectHelper;
+        $this->dataObjectProcessor = $dataObjectProcessor;
+    }
+
+    /**
+     * Save
+     *
+     * @param Data\\$3Interface \$${3:$(string-inflection-lower-camelcase-function yas-text)}
+     *
+     * @return Data\\$3Interface
+     * @throws CouldNotSaveException
+     */
+    public function save(Data\\$3Interface \$${3:$(string-inflection-lower-camelcase-function yas-text)})
+    {
+        try {
+            $this->resource->save(\$${3:$(string-inflection-lower-camelcase-function yas-text)});
+        } catch(Exception $e) {
+            throw new CouldNotSaveException(__($e->getMessage()));
+        }
+
+        return \$${3:$(string-inflection-lower-camelcase-function yas-text)};
+    }
+
+    /**
+     * Get by ID
+     *
+     * @param int \$${3:$(string-inflection-lower-camelcase-function yas-text)}Id
+     *
+     * @return Data\\$3Interface|$3|void
+     * @throws NoSuchEntityException
+     */
+    public function getById(\$${3:$(string-inflection-lower-camelcase-function yas-text)}Id)
+    {
+        \$${3:$(string-inflection-lower-camelcase-function yas-text)} = $this->${3:$(string-inflection-lower-camelcase-function yas-text)}Factory->create();
+
+        $this->resource->load(\$${3:$(string-inflection-lower-camelcase-function yas-text)}, \$${3:$(string-inflection-lower-camelcase-function yas-text)}Id);
+
+        if (!\$${3:$(string-inflection-lower-camelcase-function yas-text)}->get$3Id()) {
+            throw new NoSuchEntityException(__('Object with id "%1" does not exist.', \$${3:$(string-inflection-lower-camelcase-function yas-text)}Id));
+        }
+
+        return \$${3:$(string-inflection-lower-camelcase-function yas-text)};
+    }
+
+    /**
+     * Delete
+     *
+     * @param Data\\$3Interface \$${3:$(string-inflection-lower-camelcase-function yas-text)}
+     *
+     * @return bool
+     * @throws CouldNotDeleteException
+     */
+    public function delete(Data\\$3Interface \$${3:$(string-inflection-lower-camelcase-function yas-text)})
+    {
+        try {
+            $this->resource->delete(\$${3:$(string-inflection-lower-camelcase-function yas-text)});
+        } catch (Exception $e) {
+            throw new CouldNotDeleteException(__($e->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete by ID
+     *
+     * @param int \$${3:$(string-inflection-lower-camelcase-function yas-text)}Id
+     *
+     * @return mixed|bool
+     * @throws CouldNotDeleteException
+     * @throws NoSuchEntityException
+     */
+    public function deleteById(\$${3:$(string-inflection-lower-camelcase-function yas-text)}Id)
+    {
+        return $this->delete($this->getById(\$${3:$(string-inflection-lower-camelcase-function yas-text)}Id));
+    }
+
+    /**
+     * Get List
+     * 
+     * @param SearchCriteriaInterface $searchCriteria
+     *
+     * @return SearchResultsInterface|SearchResultsInterfaceFactory
+     */
+    public function getList(SearchCriteriaInterface $searchCriteria)
+    {
+        $collection = $this->${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory->create();
+        $this->collectionProcessor->process($searchCriteria, $collection);
+        $collection->load();
+
+        $searchResult = $this->searchResultsFactory->create();
+        $searchResult->setSearchCriteria($searchCriteria);
+        $searchResult_>setItems($collection->getItems());
+        $searchResult->setTotalCount($collection->getSize());
+
+        return $searchResult;
+    }
+
+}

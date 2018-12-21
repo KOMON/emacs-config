@@ -1,0 +1,21 @@
+
+;; ----- smex-history -----
+(
+ customize-variable
+ customize
+ magit-status
+ json-pretty-print
+ php-mode
+ web-mode
+ cd
+)
+
+;; ----- smex-data -----
+(
+ (web-mode . 3)
+ (php-mode . 1)
+ (json-pretty-print . 3)
+ (magit-status . 1)
+ (customize . 1)
+ (customize-variable . 1)
+)

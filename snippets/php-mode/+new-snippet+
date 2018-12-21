@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: _mage-imodel-const
+# key: _mage-imodel-const
+# --
+const ${1:$(upcase yas-text)} = "${1:`field-name`}"

@@ -1,0 +1,12 @@
+# key: mage-mod-reg
+# name: Magento Module Registration
+# --
+/**
+ * Register module ${1:`(djr/yas-mage-module-name)`}
+ */
+
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    '${2:`(djr/yas-mage-module-code)`}',
+    __DIR__
+);

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Magento Module Registration
+# key: mage mod reg
+# --
+
+/**
+ * Register module ${0:`(file-name-nondirectory (expand-file-name "."))`}
+ */
+
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    ${1:`(file-name-nondirectory (expand-file-name ".."))`}_$0,
+    __DIR__
+);

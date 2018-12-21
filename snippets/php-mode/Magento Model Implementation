@@ -1,0 +1,63 @@
+# key: mage-model
+# name: Magento Model Implementation
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+/**
+ * Class $2
+ * @package $1
+ */
+class ${2:Model} extends \Magento\Framework\Model\AbstractModel
+    implements
+    \\${3:`(yas-mage/module-namespace)`}\Api\Data\\$2Interface,
+    \Magento\Framework\DataObject\IdentityInterface
+{
+    const CACHE_TAG = '${4:`(yas-mage/module-code)`}';
+
+    /**
+     * Construct
+     *
+     * @return null
+     */
+    public function _construct()
+    {
+        $this->_init($1\ResourceModel\\$2::class);
+    }
+
+    /**
+     * Get identities
+     *
+     * @return array|string[]
+     */
+    public function getIdentities()
+    {
+        return [self::CACHE_TAG . '_' . $this->getId()];
+    }
+
+ ${5:$$(unless yas-modified-p
+              (progn
+                  (yas-mage/prompt-field-list 'const 'class)
+                  (mapconcat
+                      (lambda (field)
+                      (yas-mage/field-format-getter
+                           field
+                           (format "return $this->getData(self::%s);"
+                                   (string-inflection-upcase-function
+                                       (oref field name)))))
+              (yas-mage/last-prompt-field-list)
+              "\n\n")))}
+
+
+ ${6:$$(unless yas-modified-p
+           (mapconcat
+               (lambda (field)
+                   (yas-mage/field-format-setter
+                       field
+                       (format "\\\\%s\\\\%s" (yas-field-value 1) (yas-field-value 2))
+                       (with-slots (name) field
+                           (format "$this->setData(self::%s, $%s);\nreturn $this;"
+                                   (string-inflection-upcase-function name)
+                                   (string-inflection-camelcase-function name)))))
+           (yas-mage/last-prompt-field-list)
+           "\n\n"))}
+}

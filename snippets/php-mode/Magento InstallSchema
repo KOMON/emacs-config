@@ -1,0 +1,38 @@
+# -*- mode: snippet -*-
+# name: Magento InstallSchema
+# key: mage-install-schema
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+/**
+ * Class InstallSchema
+ *
+ * @package $1
+ */
+class InstallSchema implements \Magento\Framework\Setup\InstallSchemaInterface
+{
+    /**
+     * Install
+     *
+     * @param \Magento\Framework\Setup\SchemaSetupInterface   $setup   setup
+     * @param \Magento\Framework\Setup\ModuleContextInterface $context context
+     * @throws \Zend_Db_Exception
+     */
+    public function install(
+        \Magento\Framework\Setup\SchemaSetupInterface $setup,
+        \Magento\Framework\Setup\ModuleContextInterface $context
+    ) {
+        $installer = $setup;
+        $installer->startSetup();
+        if (!$installer->tableExists('${2:table}')) {
+            $table = $installer->getConnection()->newTable(
+                $installer->getTable('$2')
+            )->setComment('${3:Comment}')$0;
+
+            $installer->getConnection()->createTable($table);
+        }
+
+        $installer->endSetup();
+    }
+}
+

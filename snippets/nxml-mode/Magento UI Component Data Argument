@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: Magento UI Component Data Argument
+# key: arg-data
+# --
+<argument name="data" xsi:type="array">
+  <item name="config" xsi:type="array">
+    <item name="component" xsi:type="string">$1</item>
+    $0
+  </item>
+</argument>

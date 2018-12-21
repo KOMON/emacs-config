@@ -19,7 +19,7 @@
               scroll-conservatively most-positive-fixnum
               sentence-end-double-space nil
               x-stretch-cursor t)
-(fringe-mode 5)
+(fringe-mode 10)
 (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
 
