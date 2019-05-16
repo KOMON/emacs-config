@@ -21,7 +21,7 @@ class ${2:Model} extends \Magento\Framework\Model\AbstractModel
      */
     public function _construct()
     {
-        $this->_init($1\ResourceModel\\$2::class);
+        $this->_init(\\$1\ResourceModel\\$2::class);
     }
 
     /**

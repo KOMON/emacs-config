@@ -1,0 +1,72 @@
+# -*- mode: snippet -*-
+# name: Magento Source Model
+# key: mage-source
+# --
+namespace ${1:`(yas-mage/namespace)`};
+
+use Magento\Framework\DB\Ddl\Table;
+use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
+
+/**
+ * Source Model $2
+ * @package $1
+ */
+class ${2:SourceModel} extends AbstractSource
+{
+    ${4:$$(unless yas-modified-p
+              (progn (yas-mage/prompt-field-list 'const 'interface)
+                  (mapconcat
+                      #'yas-mage/field-format-declaration
+                      (yas-mage/last-prompt-field-list)
+                      "\n")))}
+
+    /**
+     * Get all options
+     *
+     * @return array
+     */
+    public function getAllOptions()
+    {
+        $this->_options = [
+            $5
+        ];
+
+        return $this->_options;
+    }
+
+   /**
+     * Get a text for option value
+     *
+     * @param string|integer $value
+     * @return string|bool
+     */
+    public function getOptionText($value)
+    {
+        foreach ($this->getAllOptions() as $option) {
+            if ($option['value'] == $value) {
+                return $option['label'];
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Retrieve flat column definition
+     *
+     * @return array
+     */
+    public function getFlatColumns()
+    {
+        $attributeCode = $this->getAttribute()->getAttributeCode();
+        return [
+            $attributeCode => [
+                'unsigned' => false,
+                'default'  => null,
+                'extra'    => null,
+                'type'     => Table::TYPE_$6,
+                'nullable' => true,
+                'comment'  => 'Custom Attribute Options  ' . $attributeCode . ' column',
+            ],
+        ];
+    }
+}

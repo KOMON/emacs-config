@@ -21,6 +21,14 @@
                '("marmalade" . "http://marmalade-repo.org/packages/"))
   (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa"))
 
+(use-package moe-theme
+  :config
+  (setq moe-theme-highlight-buffer-id t)
+  (load-theme 'moe-dark t))
+
+
+(use-package ws-butler)
+
 (use-package flycheck
   :init (global-flycheck-mode))
 
@@ -44,15 +52,22 @@
   :config
   (global-magit-file-mode 't))
 
+(use-package forge
+  :after magit)
+
 (use-package projectile
   :ensure t
   :config
-  (projectile-global-mode)
-  (setq projectile-completion-system 'ivy))
-
+  (setq projectile-completion-system 'helm)
+  :bind-keymap ("C-c p" . projectile-command-map))
 
 (use-package geiser
   :ensure t)
+
+(use-package rust-mode
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.rs$" . rust-mode)))
 
 (use-package web-mode
   :ensure t
@@ -65,7 +80,8 @@
     (setq web-mode-code-indent-offset 2))
   :config
   (setq web-mode-engines-alist '(("php" . "\\.phtml$")))
-  (add-hook 'web-mode-hook  'my-web-mode-hook))
+  (add-hook 'web-mode-hook  'my-web-mode-hook)
+  (add-hook 'web-mode-hook 'ws-butler-mode))
 
 (use-package js
   :ensure t
@@ -74,8 +90,13 @@
     "js-mode-hook"
     (setq js-indent-level 2))
   :config
-  (add-hook
-   'js-mode-hook 'js-custom))
+  (add-hook 'js-mode-hook 'js-custom)
+  (add-hook 'js-mode-hook 'ws-butler-mode))
+
+(use-package phpactor)
+(use-package company-phpactor
+  :config
+  (add-to-list 'company-backends 'company-phpactor))
 
 (use-package php-mode
   :ensure t
@@ -87,14 +108,21 @@
           php-manual-path "~/.emacs.d/docs/php"
           browse-url-browser-function 'eww-browse-url)
     (local-unset-key (kbd "C-c C-r")))
+  :bind
+  (("M-." . 'phpactor-goto-definition)
+   ("M-?" . 'phpactor-find-references))
   :config
-  (add-hook 'php-mode-hook 'php-custom))
+  (add-hook 'php-mode-hook 'php-custom)
+  (add-hook 'php-mode-hook 'eldoc-mode)
+  (add-hook 'php-mode-hook 'ws-butler-mode)
+  (add-hook 'php-mode-hook 'phpactor))
 
 (use-package company
   :bind
   (("M-/" . company-complete))
   :config
-  (add-hook 'after-init-hook 'global-company-mode))
+  (global-company-mode 1))
+
  
 (use-package go-mode
   :init
@@ -109,7 +137,7 @@
   :bind (("M-g o" . dumb-jump-go-other-window)
          ("M-g j" . dumb-jump-go))
   :config
-  (setq dumb-jump-selector 'ivy))
+  (setq dumb-jump-selector 'helm))
 
 (use-package expand-region
   :ensure t
@@ -120,52 +148,46 @@
 (use-package hydra
   :ensure t)
 
-(use-package ivy-mode
+(use-package helm
+  :bind (("C-c h" . helm-command-prefix)
+         ("M-x" . helm-M-x)
+         ("C-x b" . helm-mini)
+         ("C-x C-f" . helm-find-files)
+         ("C-c j" . helm-grep-do-git-grep)
+         ("C-c C-j" . helm-imenu)
+         ("M-y" . helm-show-kill-ring)
+         :map helm-map
+         ("<tab>" . helm-execute-persistent-action)
+         ("C-z" . helm-select-action))
   :config
-  (ivy-mode t)
-  (setq enable-recursive-minibuffers t
-        ivy-use-selectable-prompt t)
-  :bind (("C-c C-r" . ivy-resume)
-         ("C-x b"   . ivy-switch-buffer)))
+  (setq-default helm-split-window-inside-p t
+                helm-display-header-line nil
+                helm-buffers-fuzzy-matching t
+                helm-recentf-fuzzy-match t
+                helm-apropos-fuzzy-match t
+                helm-window-prefer-horizontal-split))
 
-(use-package ivy-rich
+(use-package helm-config
   :config
-  (ivy-rich-mode 1))
-  
-(use-package swiper
-  :ensure t)
+  (helm-mode 1))
 
-(defun djr/counsel-M-x ()
-  "Call counsel's extended execute without an initial ^."
-  (interactive)
-  (counsel-M-x ""))
+(use-package helm-swoop
+  :config
+  :bind (("M-i" . helm-swoop)
+         ("M-I" . helm-multi-swoop)
+         ("C-c M-I" . helm-multi-swoop-all)
+         :map helm-swoop-map
+         ("M-m" . helm-multi-swoop-current-mode-from-helm-swoop)
+         :map isearch-mode-map
+              ("C-s" . helm-swoop-from-isearch)))
+
+(use-package helm-projectile
+  :bind (:map projectile-command-map
+         ("SPC" . helm-projectile))
+  :config
+  (helm-projectile-on))
 
 (use-package smex)
-
-(use-package counsel
-  :ensure t
-  :bind (("M-x" . djr/counsel-M-x)
-         ("M-y" . counsel-yank-pop)
-         ("C-c C-j" . counsel-imenu)
-         ("C-x C-f" . counsel-find-file)
-         ("C-c g" . counsel-git)
-         ("C-c j" . counsel-git-grep)
-         ("C-c r" . counsel-rg)
-         ("C-h f" . counsel-describe-function)
-         ("C-h v" . counsel-describe-variable)
-         ("C-h u" . counsel-unicode-char)
-         ("C-s"   . counsel-grep-or-swiper))
-  :config
-  (define-key read-expression-map (kbd "C-r")
-    'counsel-expression-history)
-  (setq counsel-grep-base-command
-        "rg -i -M 120 --no-heading --line-number --color never '%s' %s"))
-
-(use-package counsel-projectile
-  :ensure t
-  :config
-  (counsel-projectile-mode)
-  :bind ("C-c p" . projectile-command-map))
 
 (use-package beacon
   :ensure t
@@ -173,22 +195,18 @@
   (beacon-mode 1)
   (setq beacon-color "white"))
 
+
 (use-package recentf
   :ensure t
   :config
   (recentf-mode 1)
   (setq recentf-max-saved-items 50)
-  :bind ("C-x C-r" . ivy-recentf))
+  )
 
 (use-package rainbow-delimiters
   :ensure t
   :config
   (rainbow-delimiters-mode t))
-
-(use-package change-inner
-  :ensure t
-  :bind (("M-i" . change-inner)
-         ("M-o" . change-outer)))
 
 (use-package zzz-to-char
   :ensure t
@@ -264,11 +282,18 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
+ '(company-backends
+   (quote
+    (company-eclim company-semantic company-clang company-xcode company-cmake company-capf company-files
+                   (company-dabbrev-code company-etags company-keywords)
+                   company-oddmuse company-dabbrev)))
  '(custom-enabled-themes (quote (wombat)))
  '(custom-safe-themes
    (quote
     ("e2fd81495089dc09d14a88f29dfdff7645f213e2c03650ac2dd275de52a513de" "ed0b4fc082715fc1d6a547650752cd8ec76c400ef72eb159543db1770a27caa7" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "e0d42a58c84161a0744ceab595370cbe290949968ab62273aed6212df0ea94b4" "b3775ba758e7d31f3bb849e7c9e48ff60929a792961a2d536edec8f68c671ca5" "96998f6f11ef9f551b427b8853d947a7857ea5a578c75aa9c4e7c73fe04d10b4" "e9776d12e4ccb722a2a732c6e80423331bcb93f02e089ba2a4b02e85de1cf00e" "4ee4a855548a7a966fe8722401441499b0d8b2fcf3d12438f81e016b6efed0e6" "2a739405edf418b8581dcd176aaf695d319f99e3488224a3c495cb0f9fd814e3" "d411730c6ed8440b4a2b92948d997c4b71332acf9bb13b31e9445da16445fe43" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "ab04c00a7e48ad784b52f34aa6bfa1e80d0c3fcacc50e1189af3651013eb0d58" "04dd0236a367865e591927a3810f178e8d33c372ad5bfef48b5ce90d4b476481" "a0feb1322de9e26a4d209d1cfa236deaf64662bb604fa513cca6a057ddf0ef64" "17cda1304ba8d26d62bf247cab2c161d12957054b6be4477abb5972a74eea4e1" "715fdcd387af7e963abca6765bd7c2b37e76154e65401cd8d86104f22dd88404" "f9574c9ede3f64d57b3aa9b9cef621d54e2e503f4d75d8613cbcc4ca1c962c21" default)))
  '(diary-entry-marker (quote font-lock-variable-name-face))
+ '(dired-bind-jump nil)
+ '(display-line-numbers-type t)
  '(ediff-split-window-function (quote split-window-horizontally))
  '(emms-mode-line-icon-image-cache
    (quote
@@ -292,7 +317,18 @@ static char *note[] = {
 \"######....\",
 \"#######..#\" };")))
  '(fci-rule-color "#222222")
+ '(flycheck-php-phpcs-executable "/usr/local/bin/phpcs")
+ '(flycheck-php-phpmd-executable "/usr/local/bin/phpmd")
+ '(flycheck-phpcs-standard "PSR2")
+ '(geben-dbgp-default-port 9001)
+ '(geben-path-mappings
+   (quote
+    (("/Users/danr/src/magento-commerce-tfaw/tfaw" "/var/www/magento"))))
+ '(geben-pause-at-entry-line t)
+ '(geben-predefined-breakpoints nil)
+ '(ggtags-auto-jump-to-match (quote history))
  '(global-aggressive-indent-mode nil)
+ '(global-flycheck-mode t)
  '(gnus-logo-colors (quote ("#528d8d" "#c0c0c0")) t)
  '(gnus-mode-line-image-cache
    (quote
@@ -320,7 +356,8 @@ static char *gnus-pointer[] = {
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+ '(pdf-view-midnight-colors (quote ("#fdf4c1" . "#1d2021")))
  '(projectile-mode t nil (projectile))
  '(tab-width 4)
  '(vc-annotate-background "#222222")
@@ -344,7 +381,9 @@ static char *gnus-pointer[] = {
      (320 . "#62b6ea")
      (340 . "#30a5f5")
      (360 . "#e353b9"))))
- '(vc-annotate-very-old-color "#e353b9"))
+ '(vc-annotate-very-old-color "#e353b9")
+ '(web-mode-enable-auto-indentation nil)
+ '(web-mode-markup-indent-offset 4))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -357,6 +396,4 @@ static char *gnus-pointer[] = {
 (put 'erase-buffer 'disabled nil)
 
 (put 'narrow-to-region 'disabled nil)
-
-(load-theme 'gruvbox-dark-hard)
 ;;; init.el ends here

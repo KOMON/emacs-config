@@ -19,7 +19,7 @@ interface ${2:Model}RepositoryInterface
      *
      * @return \\$1\Data\\$2Interface
      */
-    public function save(\\$1\Data\\$1Interface \$${2:$(string-inflection-lower-camelcase-function yas-text)});
+    public function save(\\$1\Data\\$2Interface \$${2:$(string-inflection-lower-camelcase-function yas-text)});
 
     /**
      * Get by id

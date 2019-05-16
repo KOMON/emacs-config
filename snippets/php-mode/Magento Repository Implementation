@@ -5,28 +5,19 @@ namespace ${1:`(yas-mage/namespace)`};
 
 use ${2:`(yas-mage/module-namespace)`}\Api\Data;
 use $2\Api\\$3RepositoryInterface;
-use $2\Api\\$3InterfaceFactory;
 use $2\Model\\$3Factory;
-use $2\Model\ResourceModel\\$3 as $3Resource;
 use $2\Model\ResourceModel\\$3\CollectionFactory as $3CollectionFactory;
+
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchResultsInterface;
 use Magento\Framework\Api\SearchResultsInterfaceFactory;
-use Magento\Framework\Api\DataObjectHelper;
-use Magento\Framework\Reflection\DataObjectProcessor;
+
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\NoSuchEntityException;
 
 class ${3:Model}Repository implements $3RepositoryInterface
 {
-    /**
-     * Resource
-     *
-     * @var $3Resource
-     */
-    protected $resource;
-
     /**
      * $3 Factory
      *
@@ -40,13 +31,6 @@ class ${3:Model}Repository implements $3RepositoryInterface
      * @var $3CollectionFactory
      */
     protected $${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory;
-
-    /**
-     * $3 factory
-     *
-     * @var $3InterfaceFactory
-     */
-    protected $data$3Factory;
 
     /**
      * Search Criteria Collection Processor
@@ -63,58 +47,28 @@ class ${3:Model}Repository implements $3RepositoryInterface
     protected $searchResultsFactory;
 
     /**
-     * Data object Helper
-     *
-     * @var DataObjectHelper
-     */
-    protected $dataObjectHelper;
-
-    /**
-     * Data object processor
-     *
-     * @var DataObjectProcessor
-     */
-    protected $dataObjectProcessor;
-
-    /**
      * $3Repository constructor
-     *
-     * @param $3Resource $resource
      *
      * @param $3Factory \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory
      *
      * @param $3CollectionFactory \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory
      *
-     * @param $3InterfaceFactory $data$3Factory
-     *
      * @param CollectionProcessorInterface $collectionProccessor
      * 
      * @param SearchResultsInterfaceFactory $searchResultsFactory
      *
-     * @param DataObjectHelper $dataObjectHelper
-     *
-     * @param DataObjectProcessor $dataObjectProcessor
-     *
      * @return null
      */
     public function __construct(
-        $3Resource $resource,
         $3Factory \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory,
         $3CollectionFactory \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory,
-        $3InterfaceFactory $data$3Factory,
         CollectionProcessorInterface $collectionProcessor,
-        SearchResultsInterfaceFactory $searchResultsFactory,
-        DataObjectHelper $dataObjectHelper,
-        DataObjectProcessor $dataObjectProcessor
+        SearchResultsInterfaceFactory $searchResultsFactory
     ) {
-        $this->resource = $resource;
         $this->${3:$(string-inflection-lower-camelcase-function yas-text)}Factory = \$${3:$(string-inflection-lower-camelcase-function yas-text)}Factory;
         $this->${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory = \$${3:$(string-inflection-lower-camelcase-function yas-text)}CollectionFactory;
-        $this->data$3Factory = $data$3Factory;
         $this->collectionProcessor = $collectionProcessor;
         $this->searchResultsFactory = $searchResultsFactory;
-        $this->dataObjectHelper = $dataObjectHelper;
-        $this->dataObjectProcessor = $dataObjectProcessor;
     }
 
     /**
@@ -205,7 +159,7 @@ class ${3:Model}Repository implements $3RepositoryInterface
 
         $searchResult = $this->searchResultsFactory->create();
         $searchResult->setSearchCriteria($searchCriteria);
-        $searchResult_>setItems($collection->getItems());
+        $searchResult->setItems($collection->getItems());
         $searchResult->setTotalCount($collection->getSize());
 
         return $searchResult;

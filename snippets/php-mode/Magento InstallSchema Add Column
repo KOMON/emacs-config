@@ -2,13 +2,13 @@
 # name: Magento InstallSchema Add Column
 # --
 ->addColumn(
-                '${1:field_name}',
-                \Magento\Framework\DB\Ddl\Table::TYPE_${2:TYPE},
+                ${1:field_name},
+                Table::TYPE_${2:TYPE},
                 ${3:size},
                 [
                     'identity' => ${4:false},
                     'nullable' => ${5:false},
                     'primary'  => ${6:$4},$7
                 ],
-                '${1:$(yas-mage/snake-case-to-words yas-text)}'
+                '${8:field_description}'
             )$0
