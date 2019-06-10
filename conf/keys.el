@@ -50,6 +50,8 @@
 (keybind "C-x C-j" join-line)
 (keybind "C-j" newline-and-indent)
 (keybind "M-SPC" cycle-spacing)
+(keybind "M-." xref-find-definitions)
+(keybind "M-?" xref-find-references)
 (global-unset-key (kbd "C-x C-z"))
 (global-unset-key (kbd "M-`"))
 

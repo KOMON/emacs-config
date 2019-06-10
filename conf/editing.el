@@ -14,3 +14,6 @@
 
 (provide 'editing)
 
+(setq make-backup-files nil
+      auto-save-default nil
+       create-lockfiles nil)
