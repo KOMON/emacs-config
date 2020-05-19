@@ -16,4 +16,4 @@
 
 (setq make-backup-files nil
       auto-save-default nil
-       create-lockfiles nil)
+      create-lockfiles nil)

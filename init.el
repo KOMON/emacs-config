@@ -29,17 +29,32 @@
 
 (use-package org
   :config
-  (setq org-log-done t)
   (setq org-agenda-files
         '("~/org/work.org" "~/org/home.org"))
   :bind
   (("C-c l" . 'org-store-link)
    ("C-c a" . 'org-agenda)))
 
+(use-package auto-virtualenvwrapper
+  :config
+  (add-hook 'python-mode-hook #'auto-virtualenvwrapper-activate)
+  (add-hook 'projectile-after-switch-project-hook #'auto-virtualenvwrapper-activate))
+
 (use-package ws-butler)
 
 (use-package flycheck
-  :init (global-flycheck-mode))
+  :init (global-flycheck-mode)
+  :config
+  (setq-default flycheck-disabled-checkers
+                (append flycheck-disabled-checkers
+                        '(javascript-jshint)))
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'jest 'web-mode))
+
+(use-package flycheck-jest
+  :ensure t
+  :config
+  (flycheck-jest-setup))
 
 (use-package yasnippet
   :config
@@ -85,6 +100,7 @@
   :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.phtml$" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode))
   (defun my-web-mode-hook ()
     "Hooks for Web mode."
     (setq web-mode-markup-indent-offset 2)
@@ -93,20 +109,25 @@
   :config
   (setq web-mode-engines-alist '(("php" . "\\.phtml$")))
   (add-hook 'web-mode-hook  'my-web-mode-hook)
-  (add-hook 'web-mode-hook 'ws-butler-mode))
+  (add-hook 'web-mode-hook 'ws-butler-mode)
+  ;; better syntax highlights for jsx
+  (defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+    (let ((web-mode-enable-part-face nil))
+      ad-do-it)
+    ad-do-it)))
 
 (use-package js2-mode
   :ensure t
   :init
-  (add-to-list 'auto-mode-alist '("\\.jsx?$" . js2-mode))
   (defun js-custom ()
     "js-mode-hook"
     (setq js-indent-level 2))
   :config
+  (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
   (add-hook 'js2-mode-hook 'js-custom)
   (add-hook 'js2-mode-hook 'ws-butler-mode)
-  (add-hook 'js2-mode-hook 'indium-interaction-mode)
-  (add-hook 'js2-mode-hook 'eglot-ensure))
+  (add-hook 'js2-mode-hook 'indium-interaction-mode))
 
 (use-package phpactor)
 (use-package company-phpactor
@@ -115,18 +136,55 @@
 
 (use-package php-mode
   :ensure t
+  :after magit
   :init
+
   (defun php-custom ()
     "php-mode-hook"
     (advice-add 'djr/other-window-first :before 'eww-browse-url)
     (setq c-basic-offset 4
           php-manual-path "~/.emacs.d/docs/php"
           browse-url-browser-function 'eww-browse-url)
-    (local-unset-key (kbd "C-c C-r")))
-  :bind
-  (:map php-mode-map
-        ("M-." . 'phpactor-goto-definition)
-        ("M-?" . 'phpactor-find-references))
+    (local-unset-key (kbd "C-c C-r"))
+    (set (make-local-variable 'company-backends)
+         '(company-phpactor company-files))
+    (make-local-variable 'eldoc-documentation-function)
+    (setq eldoc-documentation-function 'phpactor-hover))
+
+  (define-transient-command php-transient-menu ()
+    "Php"
+    [["Class"
+      ("cc" "Copy" phpactor-copy-class)
+      ("cn" "New" phpactor-create-new-class)
+      ("cr" "Move" phpactor-move-class)
+      ("ci" "Inflect" phpactor-inflect-class)
+      ("n"  "Namespace" phpactor-fix-namespace)]
+     ["Properties"
+      ("a"  "Accessor" phpactor-generate-accessors)
+      ("pc" "Constructor" phpactor-complete-constructor)
+      ("pm" "Add missing props" phpactor-complete-properties)
+      ("r" "Rename var locally" phpactor-rename-variable-local)
+      ("R" "Rename var in file" phpactor-rename-variable-file)]
+     ["Extract"
+      ("ec" "constant" phpactor-extract-constant)
+      ;;    ("ee" "expression" phpactor-extract-expression)
+      ;;    ("em"  "method" phpactor-extract-method)
+      ]
+     ["Methods"
+      ("i" "Implement Contracts" phpactor-implement-contracts)
+      ("m"  "Generate method" phpactor-generate-method)]
+     ["Navigate"
+      ("x" "List refs" phpactor-list-references)
+      ("X" "Replace refs" phpactor-replace-references)
+      ("."  "Goto def" phpactor-goto-definition)]
+     ["Phpactor"
+      ("s" "Status" phpactor-status)
+      ("u" "Install" phpactor-install-or-update)]])
+
+  :bind (:map php-mode-map
+              ("M-." . 'phpactor-goto-definition)
+              ("M-?" . 'phpactor-find-references)
+              ("C-c C-p" . 'php-transient-menu))
   :config
   (add-hook 'php-mode-hook 'php-custom)
   (add-hook 'php-mode-hook 'eldoc-mode)
@@ -138,7 +196,7 @@
   :config
   (global-company-mode 1))
 
- 
+
 (use-package go-mode
   :init
   (defun go-custom ()
@@ -194,11 +252,11 @@
          :map helm-swoop-map
          ("M-m" . helm-multi-swoop-current-mode-from-helm-swoop)
          :map isearch-mode-map
-              ("C-s" . helm-swoop-from-isearch)))
+         ("C-s" . helm-swoop-from-isearch)))
 
 (use-package helm-projectile
   :bind (:map projectile-command-map
-         ("SPC" . helm-projectile))
+              ("SPC" . helm-projectile))
   :config
   (helm-projectile-on))
 
@@ -215,8 +273,7 @@
   :ensure t
   :config
   (recentf-mode 1)
-  (setq recentf-max-saved-items 50)
-  )
+  (setq recentf-max-saved-items 50))
 
 (use-package rainbow-delimiters
   :ensure t
@@ -237,6 +294,11 @@
                        '(?0)))
   :bind (("M-g c" . avy-goto-char)
          ("M-g a" . avy-goto-char-timer)))
+
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
 
 (use-package tramp
   :ensure t
@@ -289,6 +351,15 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
           '(lambda ()
              (local-set-key (kbd "C-l") 'djr/eshell-clear-buffer)))
 
+(require 'ansi-color)
+(defun djr/colorize-compilation-buffer ()
+  "Colorize compilation buffer with ansi colors."
+  (toggle-read-only)
+  (ansi-color-apply-on-region compilation-filter-start (point))
+  (toggle-read-only))
+
+(add-hook 'compilation-filter-hook 'djr/colorize-compilation-buffer)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -339,9 +410,10 @@ static char *note[] = {
  '(geben-dbgp-default-port 9001)
  '(geben-path-mappings
    (quote
-    (("/Users/danr/src/magento-commerce-tfaw/tfaw" "/var/www/magento"))))
- '(geben-pause-at-entry-line t)
+    (("/Users/danr/src/magento-commerce-tfaw/tfaw_23" "/app"))))
+ '(geben-pause-at-entry-line nil)
  '(geben-predefined-breakpoints nil)
+ '(geben-query-on-clear-breakpoints nil)
  '(ggtags-auto-jump-to-match (quote history))
  '(global-aggressive-indent-mode nil)
  '(global-flycheck-mode t)
@@ -369,11 +441,30 @@ static char *gnus-pointer[] = {
 \"###....####.######\",
 \"###..######.######\",
 \"###########.######\" };")) t)
+ '(helm-M-x-use-completion-styles nil)
+ '(helm-apropos-fuzzy-match t)
+ '(helm-buffers-fuzzy-matching t)
+ '(helm-display-header-line nil)
+ '(helm-grep-file-path-style (quote relative))
+ '(helm-mode t)
+ '(helm-recentf-fuzzy-match t)
+ '(helm-split-window-inside-p t)
+ '(js-indent-level 2)
+ '(magit-todos-exclude-globs (quote ("*.min.css" "*.min.js")))
+ '(magit-todos-mode t nil (magit-todos))
+ '(magit-todos-rg-extra-args (quote ("-M 120")))
+ '(magit-todos-scanner (quote magit-todos--scan-with-rg))
+ '(org-agenda-files
+   (quote
+    ("~/src/puppetstack/meeting-notes.org" "~/org/work.org" "~/org/home.org")))
  '(org-startup-truncated nil)
+ '(org-use-speed-commands t)
  '(package-selected-packages
    (quote
-    (magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (typescript-mode flycheck-jest editorconfig handlebars-mode geben-helm-projectile auto-virtualenvwrapper magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
  '(pdf-view-midnight-colors (quote ("#fdf4c1" . "#1d2021")))
+ '(phpactor-executable "/Users/danr/.emacs.d/phpactor/phpactor.sh")
+ '(projectile-enable-caching nil)
  '(projectile-mode t nil (projectile))
  '(tab-width 4)
  '(vc-annotate-background "#222222")
@@ -413,3 +504,4 @@ static char *gnus-pointer[] = {
 
 (put 'narrow-to-region 'disabled nil)
 ;;; init.el ends here
+(put 'magit-edit-line-commit 'disabled nil)
