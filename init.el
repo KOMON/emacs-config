@@ -48,13 +48,46 @@
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint)))
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
-  (flycheck-add-mode 'jest 'web-mode))
+  (flycheck-add-mode 'javascript-eslint 'web-mode))
 
 (use-package flycheck-jest
   :ensure t
   :config
   (flycheck-jest-setup))
+
+(use-package tide
+  :demand t
+  :ensure t
+  :after magit
+  :init
+  (defun tide-custom ()
+    "typescript-mode-hook"
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    (company-mode +1))
+  (transient-define-prefix typescript-transient-menu ()
+    "Typescript"
+    [["Tide"
+      ("d" "Documentantion" tide-documentation-at-point)
+      ("?" "References" tide-references)
+      ("rs" "Rename symbol" tide-rename-symbol)
+      ("rf" "Rename file" tide-rename-file)
+      ("rr" "Refactor" tide-refactor)
+      ("ri" "Organize Imports" tide-organize-imports)
+      ("fo" "Format" tide-format)
+      ("fi" "Fix" tide-fix)
+      ("xr" "Restart" tide-restart-server)]])
+  :config
+  (add-hook 'typescript-mode-hook 'tide-custom)
+  (add-hook 'before-save-hook 'tide-format-before-save)
+  :bind (:map tide-mode-map
+              ("M-?" . 'tide-references)
+              ("M-'" . 'tide-documentation-at-point)
+              ("C-c C-t" . 'typescript-transient-menu)))
 
 (use-package yasnippet
   :config
@@ -70,6 +103,7 @@
   (global-syntax-subword-mode t))
 
 (use-package magit
+  :demand t
   :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
@@ -77,10 +111,10 @@
   (global-magit-file-mode 't)
   (add-hook 'after-save-hook 'magit-after-save-refresh-status))
 
-(use-package magit-todos
-  :after magit
-  :config
-  (magit-todos-mode 1))
+;; (use-package magit-todos
+;;   :after magit
+;;   :config
+;;   (magit-todos-mode 1))
 
 (use-package projectile
   :ensure t
@@ -129,10 +163,10 @@
   (add-hook 'js2-mode-hook 'ws-butler-mode)
   (add-hook 'js2-mode-hook 'indium-interaction-mode))
 
-(use-package phpactor)
-(use-package company-phpactor
-  :config
-  (add-to-list 'company-backends 'company-phpactor))
+;; (use-package phpactor)
+;; (use-package company-phpactor
+;;   :config
+;;   (add-to-list 'company-backends 'company-phpactor))
 
 (use-package php-mode
   :ensure t
@@ -151,7 +185,7 @@
     (make-local-variable 'eldoc-documentation-function)
     (setq eldoc-documentation-function 'phpactor-hover))
 
-  (define-transient-command php-transient-menu ()
+  (transient-define-prefix php-transient-menu ()
     "Php"
     [["Class"
       ("cc" "Copy" phpactor-copy-class)
@@ -373,7 +407,7 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
     (company-eclim company-semantic company-clang company-xcode company-cmake company-capf company-files
                    (company-dabbrev-code company-etags company-keywords)
                    company-oddmuse company-dabbrev)))
- '(custom-enabled-themes (quote (wombat)))
+ '(custom-enabled-themes (quote (moe-dark)))
  '(custom-safe-themes
    (quote
     ("e2fd81495089dc09d14a88f29dfdff7645f213e2c03650ac2dd275de52a513de" "ed0b4fc082715fc1d6a547650752cd8ec76c400ef72eb159543db1770a27caa7" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "e0d42a58c84161a0744ceab595370cbe290949968ab62273aed6212df0ea94b4" "b3775ba758e7d31f3bb849e7c9e48ff60929a792961a2d536edec8f68c671ca5" "96998f6f11ef9f551b427b8853d947a7857ea5a578c75aa9c4e7c73fe04d10b4" "e9776d12e4ccb722a2a732c6e80423331bcb93f02e089ba2a4b02e85de1cf00e" "4ee4a855548a7a966fe8722401441499b0d8b2fcf3d12438f81e016b6efed0e6" "2a739405edf418b8581dcd176aaf695d319f99e3488224a3c495cb0f9fd814e3" "d411730c6ed8440b4a2b92948d997c4b71332acf9bb13b31e9445da16445fe43" "7153b82e50b6f7452b4519097f880d968a6eaf6f6ef38cc45a144958e553fbc6" "ab04c00a7e48ad784b52f34aa6bfa1e80d0c3fcacc50e1189af3651013eb0d58" "04dd0236a367865e591927a3810f178e8d33c372ad5bfef48b5ce90d4b476481" "a0feb1322de9e26a4d209d1cfa236deaf64662bb604fa513cca6a057ddf0ef64" "17cda1304ba8d26d62bf247cab2c161d12957054b6be4477abb5972a74eea4e1" "715fdcd387af7e963abca6765bd7c2b37e76154e65401cd8d86104f22dd88404" "f9574c9ede3f64d57b3aa9b9cef621d54e2e503f4d75d8613cbcc4ca1c962c21" default)))
@@ -447,13 +481,13 @@ static char *gnus-pointer[] = {
  '(helm-display-header-line nil)
  '(helm-grep-file-path-style (quote relative))
  '(helm-mode t)
- '(helm-recentf-fuzzy-match t)
+ '(helm-recentf-fuzzy-match t t)
  '(helm-split-window-inside-p t)
  '(js-indent-level 2)
- '(magit-todos-exclude-globs (quote ("*.min.css" "*.min.js")))
- '(magit-todos-mode t nil (magit-todos))
- '(magit-todos-rg-extra-args (quote ("-M 120")))
- '(magit-todos-scanner (quote magit-todos--scan-with-rg))
+ ;; '(magit-todos-exclude-globs (quote ("*.min.css" "*.min.js")))
+ ;; '(magit-todos-mode t nil (magit-todos))
+ ;; '(magit-todos-rg-extra-args (quote ("-M 120")))
+ ;; '(magit-todos-scanner (quote magit-todos--scan-with-rg))
  '(org-agenda-files
    (quote
     ("~/src/puppetstack/meeting-notes.org" "~/org/work.org" "~/org/home.org")))
@@ -461,7 +495,7 @@ static char *gnus-pointer[] = {
  '(org-use-speed-commands t)
  '(package-selected-packages
    (quote
-    (typescript-mode flycheck-jest editorconfig handlebars-mode geben-helm-projectile auto-virtualenvwrapper magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (tide typescript-mode flycheck-jest editorconfig handlebars-mode geben-helm-projectile auto-virtualenvwrapper magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
  '(pdf-view-midnight-colors (quote ("#fdf4c1" . "#1d2021")))
  '(phpactor-executable "/Users/danr/.emacs.d/phpactor/phpactor.sh")
  '(projectile-enable-caching nil)
