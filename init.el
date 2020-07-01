@@ -42,6 +42,8 @@
 
 (use-package ws-butler)
 
+(use-package terraform-mode)
+
 (use-package flycheck
   :init (global-flycheck-mode)
   :config
@@ -481,13 +483,9 @@ static char *gnus-pointer[] = {
  '(helm-display-header-line nil)
  '(helm-grep-file-path-style (quote relative))
  '(helm-mode t)
- '(helm-recentf-fuzzy-match t t)
+ '(helm-recentf-fuzzy-match t)
  '(helm-split-window-inside-p t)
  '(js-indent-level 2)
- ;; '(magit-todos-exclude-globs (quote ("*.min.css" "*.min.js")))
- ;; '(magit-todos-mode t nil (magit-todos))
- ;; '(magit-todos-rg-extra-args (quote ("-M 120")))
- ;; '(magit-todos-scanner (quote magit-todos--scan-with-rg))
  '(org-agenda-files
    (quote
     ("~/src/puppetstack/meeting-notes.org" "~/org/work.org" "~/org/home.org")))
@@ -495,7 +493,7 @@ static char *gnus-pointer[] = {
  '(org-use-speed-commands t)
  '(package-selected-packages
    (quote
-    (tide typescript-mode flycheck-jest editorconfig handlebars-mode geben-helm-projectile auto-virtualenvwrapper magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
+    (terraform-mode tide typescript-mode flycheck-jest editorconfig handlebars-mode geben-helm-projectile auto-virtualenvwrapper magit-todos forge helm-rg moe-theme helm-swoop helm-smex helm-projectile helm js2-mode company-phpactor phpactor geben rust-mode counsel-gtags ws-butler ggtags ivy-phpunit ac-php string-inflection yasnippet loccur git-gutter company-php company markdown-mode nginx-mode jinja2-mode django-mode ivy-prescient flymake-python-pyflakes avy wgrep doom-themes flycheck syntax-subword ivy-hydra material-theme sublime-themes racket-mode yaml-mode puppet-mode dumb-jump zenburn-theme gruvbox-theme alect-themes organic-green-theme hamburg-theme counsel-projectile projectile ivy-mode exec-path-from-shell vagrant-tramp magit dart-mode paredit geiser slime counsel swiper ivy beacon use-package change-inner ido-grid-mode ido-vertical-mode ido-ubiquitous expand-region go-mode lua-mode gnu-apl-mode emmet-mode sql-indent php-mode web-mode abyss-theme rainbow-delimiters flx-ido flx smex)))
  '(pdf-view-midnight-colors (quote ("#fdf4c1" . "#1d2021")))
  '(phpactor-executable "/Users/danr/.emacs.d/phpactor/phpactor.sh")
  '(projectile-enable-caching nil)
