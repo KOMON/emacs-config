@@ -105,15 +105,15 @@
          ("C-+" . er/contract-region))
   :config
   (embark-define-keymap embark-expand-region-keymap
-                        ""
-                        ("w" er/mark-word)
-                        ("s" er/mark-symbol)
-                        ("S" er/mark-symbol-with-prefix)
-                        ("." er/mark-next-accessor)
-                        ("m" er/mark-method-call)
-                        ("'" er/mark-inside-quotes)
-                        ("\"" er/mark-outside-quotes)
-                        (";" er/mark-comment))
+    ""
+    ("w" er/mark-word)
+    ("s" er/mark-symbol)
+    ("S" er/mark-symbol-with-prefix)
+    ("." er/mark-next-accessor)
+    ("m" er/mark-method-call)
+    ("'" er/mark-inside-quotes)
+    ("\"" er/mark-outside-quotes)
+    (";" er/mark-comment))
   (define-key embark-region-map "=" embark-expand-region-keymap))
 
 (use-package embark
@@ -281,7 +281,6 @@
          (js2-mode . tide-custom)
          (web-mode . tide-custom))
   :config
-  (message "Hi Dan, from Tide!")
   (defun tide-custom ()
     "tide-mode-hook"
     (interactive)
@@ -445,10 +444,11 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
- '(resize-mini-windows t)
+ '(resize-mini-windows t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:background nil)))))
+
