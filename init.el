@@ -30,22 +30,35 @@
   :init
   (load-theme 'moe-dark t))
 
+(use-package avy
+  :ensure t
+  :bind (("M-a" . avy-goto-char-timer))
+  :config
+  (defun avy-action-embark (pt)
+    (save-excursion
+      (goto-char pt)
+      (embark-act))
+    (select-window
+     (cdr (ring-ref avy-ring 0)))
+    t)
+  (setf (alist-get ?. avy-dispatch-alist) 'avy-action-embark))
+
 (use-package vertico
   :ensure t
-  :init
+  :config
   (vertico-mode))
 
 (use-package marginalia
   :ensure t
   :bind (("M-A" . marginalia-cycle)
-        :map minibuffer-local-map
-        ("M-A" . marginalia-cycle))
-  :init
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
+  :config
   (marginalia-mode))
 
 (use-package orderless
   :ensure t
-  :init
+  :config
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
@@ -56,9 +69,19 @@
 (use-package consult-flycheck
   :ensure t)
 
-(use-package consult
-  :after compile
+(use-package tree-sitter
   :ensure t
+  :hook (tree-sitter-after-on . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode))
+
+(use-package tree-sitter-langs
+  :ensure t)
+
+(use-package consult
+  :after (compile projectile)
+  :ensure t
+  :demand t
   :bind (("C-x b" . consult-buffer)
          ("C-x 4 b" . consult-buffer-other-window)
          ("M-y" . consult-yank-pop)
@@ -71,7 +94,27 @@
          :map compilation-mode-map
          ("C-c C-c" . consult-compile-error)
          :map flycheck-mode-map
-         ("C-c ! j" . consult-flycheck)))
+         ("C-c ! j" . consult-flycheck))
+  :config
+  (setq consult-project-root-function #'projectile-project-root))
+
+(use-package expand-region
+  :ensure t
+  :after embark
+  :bind (("C-=" . er/expand-region)
+         ("C-+" . er/contract-region))
+  :config
+  (embark-define-keymap embark-expand-region-keymap
+                        ""
+                        ("w" er/mark-word)
+                        ("s" er/mark-symbol)
+                        ("S" er/mark-symbol-with-prefix)
+                        ("." er/mark-next-accessor)
+                        ("m" er/mark-method-call)
+                        ("'" er/mark-inside-quotes)
+                        ("\"" er/mark-outside-quotes)
+                        (";" er/mark-comment))
+  (define-key embark-region-map "=" embark-expand-region-keymap))
 
 (use-package embark
   :ensure t
@@ -98,6 +141,12 @@
   (setq wgrep-auto-save-buffer t)
   (setq wgrep-enable-key "w"))
 
+
+(use-package company
+  :ensure t
+  :config
+  (global-company-mode 1));
+
 (use-package emacs
   :init
   (setq read-extended-command-predicate nil))
@@ -108,10 +157,16 @@
 (use-package terraform-mode
   :ensure t)
 
+(use-package fic-mode
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook 'fic-mode))
+
 (use-package flycheck
   :ensure t
   :init (global-flycheck-mode)
   :config
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint)))
@@ -145,21 +200,7 @@
              (not ;; `seq-contains-p' is only in seq >= 2.21
               (with-no-warnings (seq-contains error-code ?/)))
              `(url . ,(format url error-code))))))
-
-  (flycheck-define-checker koan-test
-    "doc string"
-    :command ("yarn" "test"
-              "--json"
-              "--testPathPattern" (eval buffer-file-name)
-              "--outputFile" (eval (flycheck-jest--result-path)))
-    :error-parser flycheck-jest--parse
-    :modes (web-mode js-mode typescript-mode rjsx-mode)
-    :predicate (lambda () (funcall #'flycheck-jest--should-use-p))
-    :working-directory
-    (lambda (checker)
-      (flycheck-jest--find-jest-project-directory checker)))
-  (add-to-list 'flycheck-checkers 'koan-lint)
-  (add-to-list 'flycheck-checkers 'koan-test))
+  (add-to-list 'flycheck-checkers 'koan-lint))
 
 (use-package syntax-subword
   :ensure t
@@ -172,28 +213,29 @@
   :ensure t
   :bind (("C-x g" . magit-status)
          ("C-x M-g" . magit-dispatch-popup))
+  :hook (after-save . magit-after-save-refresh-status)
   :config
-  (add-hook 'after-save-hook 'magit-after-save-refresh-status)
   (setq magit-delete-by-moving-to-trash nil))
 
 (use-package projectile
   :ensure t
+  :demand t
+  :bind-keymap (("C-c p" . projectile-command-map))
   :config
   (setq projectile-switch-project-action #'projectile-commander)
-  :bind-keymap ("C-c p" . projectile-command-map)
-  :init
   (projectile-mode t))
 
+(use-package graphql-mode
+  :ensure t)
+
 (use-package rust-mode
-  :ensure t
-  :init
-  (add-to-list 'auto-mode-alist '("\\.rs$" . rust-mode)))
+  :mode "\\.rs$"
+  :ensure t)
 
 (use-package web-mode
   :ensure t
+  :mode ("\\.phtml$" "\\.[tj]sx$" "\\.html.erb")
   :init
-  (add-to-list 'auto-mode-alist '("\\.phtml$" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.[tj]sx$" . web-mode))
   (defun my-web-mode-hook ()
     "Hooks for Web mode."
     (setq web-mode-markup-indent-offset 2)
@@ -205,72 +247,67 @@
   (add-hook 'web-mode-hook 'ws-butler-mode)
   ;; better syntax highlights for jsx
   (defadvice web-mode-highlight-part (around tweak-jsx activate)
-  (if (equal web-mode-content-type "jsx")
-    (let ((web-mode-enable-part-face nil))
-      ad-do-it)
-    ad-do-it)))
+    (if (equal web-mode-content-type "jsx")
+        (let ((web-mode-enable-part-face nil))
+          ad-do-it)
+      ad-do-it)))
 
 (use-package js2-mode
+  :mode ("\\.js$")
   :ensure t
-  :init
+  :config
   (defun js-custom ()
     "js-mode-hook"
     (setq js-indent-level 2))
-  :config
-  (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
   (add-hook 'js2-mode-hook 'js-custom)
-  (add-hook 'js2-mode-hook 'ws-butler-mode)
-  (add-hook 'js2-mode-hook 'indium-interaction-mode))
+  (add-hook 'js2-mode-hook 'ws-butler-mode))
+
+(use-package json-mode
+  :ensure t
+  :mode "\\.json$")
+
+(use-package eldoc
+  :config
+  (global-eldoc-mode))
+
+(use-package typescript-mode
+  :ensure t)
 
 (use-package tide
-  :demand t
   :ensure t
-  :after magit
-  :init
+  :after projectile
+  :commands (tide-setup tide-mode tide-custom)
+  :hook ((typescript-mode . tide-custom)
+         (js2-mode . tide-custom)
+         (web-mode . tide-custom))
+  :config
+  (message "Hi Dan, from Tide!")
   (defun tide-custom ()
-    "typescript-mode-hook"
+    "tide-mode-hook"
     (interactive)
     (tide-setup)
-    (flycheck-mode +1)
-    (setq flycheck-check-syntax-automatically '(save mode-enabled))
-    (eldoc-mode +1)
-    (tide-hl-identifier-mode +1))
-  (transient-define-prefix typescript-transient-menu ()
-    "Typescript"
-    [["Tide"
-      ("d" "Documentantion" tide-documentation-at-point)
-      ("?" "References" tide-references)
-      ("rs" "Rename symbol" tide-rename-symbol)
-      ("rf" "Rename file" tide-rename-file)
-      ("rr" "Refactor" tide-refactor)
-      ("ri" "Organize Imports" tide-organize-imports)
-      ("fo" "Format" tide-format)
-      ("fi" "Fix" tide-fix)
-      ("xr" "Restart" tide-restart-server)]])
-  :config
-  (add-hook 'typescript-mode-hook 'tide-custom)
-  (add-hook 'web-mode-hook 'tide-custom)
-  (add-hook 'js2-mode-hook 'tide-custom)
-  (flycheck-add-next-checker 'typescript-tide '(warning . koan-test))
-  (flycheck-add-next-checker 'typescript-tide '(error . koan-lint))
+    (tide-hl-identifier-mode +1)
+    (when (string-equal
+           "purpose"
+           (file-name-nondirectory (directory-file-name (projectile-project-root))))
+      (flycheck-add-next-checker 'typescript-tide '(error . koan-lint))))
   :bind (:map tide-mode-map
               ("M-?" . 'tide-references)
               ("M-'" . 'tide-documentation-at-point)
               ("C-c C-t" . 'typescript-transient-menu)))
-
-
-;; (use-package phpactor)
 
 (use-package prettier
   :ensure t
   :config
   (global-prettier-mode))
 
+(use-package phpactor :ensure t :after php-mode)
 (use-package php-mode
   :ensure t
   :after magit
-  :init
-
+  :hook ((php-mode . php-custom)
+         (php-mode . ws-butler-mode))
+  :config
   (defun php-custom ()
     "php-mode-hook"
     (advice-add 'djr/other-window-first :before 'eww-browse-url)
@@ -316,20 +353,19 @@
   :bind (:map php-mode-map
               ("M-." . 'phpactor-goto-definition)
               ("M-?" . 'phpactor-find-references)
-              ("C-c C-p" . 'php-transient-menu))
-  :config
-  (add-hook 'php-mode-hook 'php-custom)
-  (add-hook 'php-mode-hook 'eldoc-mode)
-  (add-hook 'php-mode-hook 'ws-butler-mode))
+              ("C-c C-p" . 'php-transient-menu)))
 
 (use-package go-mode
   :ensure t
-  :init
+  :hook (go-mode . go-custom)
+  :config
   (defun go-custom ()
     "go-mode-hook"
-    (setq tab-width 4))
-  :config
-  (add-hook 'go-mode-hook 'go-custom))
+    (setq tab-width 4)))
+
+
+(use-package yaml-mode
+  :ensure t)
 
 (use-package beacon
   :ensure t
@@ -408,8 +444,8 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
- '(resize-mini-windows t))
+   '(markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
+ '(resize-mini-windows t)
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

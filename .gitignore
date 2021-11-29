@@ -1,10 +1,6 @@
-auto-save-list/
-docs/
-elpa/
-eshell/
-url/
-network-security.data
-notes
-projectile-bookmarks.eld
-recentf
-tramp
+*
+! djr/**/*
+
+! conf/**/*
+
+! init.el
