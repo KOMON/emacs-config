@@ -25,6 +25,18 @@
                '("marmalade" . "http://marmalade-repo.org/packages/"))
   (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa"))
 
+(use-package markdown-mode :ensure t
+  :bind (("C-M-%" . vr/query-replace)))
+(use-package dockerfile-mode :ensure t)
+
+(use-package visual-regexp :ensure t)
+(use-package visual-regexp-steroids :ensure t)
+
+(use-package rvm
+  :ensure t
+  :init
+  (rvm-use-default))
+
 (use-package moe-theme
   :ensure t
   :init
@@ -72,11 +84,23 @@
 (use-package consult-flycheck
   :ensure t)
 
+
+(use-package robe
+  :ensure t
+  :init
+  (global-robe-mode))
+
+(use-package rspec-mode
+  :ensure t
+  :init)
+
+
 (use-package tree-sitter
   :ensure t
   :hook (tree-sitter-after-on . tree-sitter-hl-mode)
   :config
   (global-tree-sitter-mode))
+
 
 (use-package tree-sitter-langs
   :ensure t)
@@ -158,7 +182,8 @@
   :ensure t)
 
 (use-package terraform-mode
-  :ensure t)
+  :ensure t
+  :hook (terraform-mode . terraform-format-on-save-mode))
 
 (use-package fic-mode
   :ensure t
@@ -468,14 +493,16 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(mustache-mode lsp-mode prettier tree-sitter haskell-mode haskell markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
+   '(mustache-mode lsp-mode visual-regexp-steroids visual-regexp rspec-mode robe robe-mode rvm rvm-mode dockerfile-mode markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter haskell haskell-mode tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
  '(resize-mini-windows t)
+ '(warning-suppress-types '((comp)))
  '(safe-local-variable-values
-   '((tide-tsserver-executable . "node_modules/typescript/bin/tsserver"))))
+   '((tide-tsserver-executable . "node_modules/typescript/bin/tsserver")))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:background nil)))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "#303030" :foreground "#c6c6c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight medium :height 140 :width normal :foundry "nil" :family "Menlo"))))
+ '(mode-line-active ((t (:inherit mode-line)))))
 
