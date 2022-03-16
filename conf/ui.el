@@ -9,8 +9,8 @@
  echo-keystrokes 0.1
  ; Turn off dialog boxes for y/n prompts
  use-dialog-box nil
- ; Turn off the visible bell, I dislike flashing.
- visible-bell nil
+ ; THE BELLS! THE BEEEEELLLLS!
+ ring-bell-function 'ignore  
  ; Don't allow automatic vertical window splits 
  split-height-threshold nil)
 
