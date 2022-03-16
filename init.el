@@ -381,7 +381,8 @@
 
 (use-package go-mode
   :ensure t
-  :hook (go-mode . go-custom)
+  :hook ((go-mode . go-custom)
+         (before-save . gofmt-before-save))
   :config
   (defun go-custom ()
     "go-mode-hook"
