@@ -164,6 +164,7 @@
 
 (use-package flycheck
   :ensure t
+  :after tide
   :init (global-flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
@@ -171,13 +172,19 @@
                 (append flycheck-disabled-checkers
                         '(javascript-jshint)))
   (flycheck-add-mode 'javascript-eslint 'web-mode)
-  (flycheck-define-checker koan-lint
+  (defun npm-eslint-config-exists-p ()
+    (eql 0 (flycheck-call-checker-process
+            'npm-eslint-lint nil nil nil
+            "eslint"
+            "--print-config" (or buffer-file-name "index.js"))))
+  
+  (flycheck-define-checker npm-eslint-lint
     "doc string"
-    :command ("yarn" "lint" "--format=json" "--stdin" "--stdin-filename" source-original)
+    :command ("npx" "eslint" "--format=json" "--stdin" "--stdin-filename" source-original)
     :standard-input t
     :error-parser flycheck-parse-eslint
     :predicate (lambda () (not (equal (file-name-extension (buffer-file-name)) "json")))
-    :enabled (lambda () (flycheck-eslint-config-exists-p))
+    :enabled (lambda () (npm-eslint-config-exists-p))
     :modes (js-mode js-jsx-mode js2-mode js2-jsx-mode js3-mode rjsx-mode
                     typescript-mode)
     :working-directory flycheck-eslint--find-working-directory
@@ -185,7 +192,7 @@
     (lambda (_)
       (let* ((default-directory
                (flycheck-compute-working-directory 'javascript-eslint))
-             (have-config (flycheck-eslint-config-exists-p)))
+             (have-config (npm-eslint-config-exists-p)))
         (list
          (flycheck-verification-result-new
           :label "config file"
@@ -200,7 +207,8 @@
              (not ;; `seq-contains-p' is only in seq >= 2.21
               (with-no-warnings (seq-contains error-code ?/)))
              `(url . ,(format url error-code))))))
-  (add-to-list 'flycheck-checkers 'koan-lint))
+  (add-to-list 'flycheck-checkers 'npm-eslint-lint)
+  (flycheck-add-next-checker 'typescript-tide '(error . npm-eslint-lint)))
 
 (use-package syntax-subword
   :ensure t
@@ -252,6 +260,13 @@
           ad-do-it)
       ad-do-it)))
 
+(use-package nvm
+  :ensure t
+  :hook ((typescript-mode . nvm-use-for-buffer)
+         (js2-mode . nvm-use-for-buffer)
+         (web-mode . nvm-use-for-buffer))
+  :commands nvm-use-for-buffer)
+
 (use-package js2-mode
   :mode ("\\.js$")
   :ensure t
@@ -270,8 +285,12 @@
   :config
   (global-eldoc-mode))
 
-(use-package typescript-mode
+(use-package mustache-mode
   :ensure t)
+
+(use-package typescript-mode
+  :ensure t
+  :mode "\\.m?tsx?$")
 
 (use-package tide
   :ensure t
@@ -289,7 +308,8 @@
     (when (string-equal
            "purpose"
            (file-name-nondirectory (directory-file-name (projectile-project-root))))
-      (flycheck-add-next-checker 'typescript-tide '(error . koan-lint))))
+      (flycheck-add-next-checker 'typescript-tide '(error . koan-lint)))
+    (setq flycheck-checker 'typescript-tide))
   :bind (:map tide-mode-map
               ("M-?" . 'tide-references)
               ("M-'" . 'tide-documentation-at-point)
@@ -299,6 +319,8 @@
   :ensure t
   :config
   (global-prettier-mode))
+
+(use-package haskell-mode :ensure t)
 
 (use-package phpactor :ensure t :after php-mode)
 (use-package php-mode
@@ -443,8 +465,10 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
- '(resize-mini-windows t))
+   '(mustache-mode lsp-mode prettier tree-sitter haskell-mode haskell markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
+ '(resize-mini-windows t)
+ '(safe-local-variable-values
+   '((tide-tsserver-executable . "node_modules/typescript/bin/tsserver"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
