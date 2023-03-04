@@ -45,6 +45,9 @@
 
 (use-package vertico
   :ensure t
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("C-l" . vertico-directory-delete-word)
   :config
   (vertico-mode))
 
