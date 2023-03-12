@@ -1,3 +1,6 @@
+;;;; keys --- Summary
+;;; Commentary:
+;;; Code:
 (when window-system (global-unset-key "\C-z"))
 
 (defmacro keybind (bind command)
@@ -7,6 +10,7 @@
   `(define-key ,map (kbd ,bind) ',command))
 
 (defmacro define-prefix-map (prefix name binds)
+  "Define a prefix map"
   `(progn
      (define-prefix-command ',name)
      (global-set-key (kbd ,prefix) ',name)
@@ -56,3 +60,4 @@
 (global-unset-key (kbd "M-`"))
 
 (provide 'keys)
+;;; keys.el ends here

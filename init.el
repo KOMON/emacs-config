@@ -10,9 +10,6 @@
 
 (require 'use-package)
 
-(use-package exec-path-from-shell
-  :ensure t)
-
 (require 'ui)
 (require 'platform)
 (require 'editing)
@@ -25,12 +22,19 @@
                '("marmalade" . "http://marmalade-repo.org/packages/"))
   (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa"))
 
+(use-package exec-path-from-shell
+  :if (eq system-type 'darwin)
+  :ensure t
+  :init (exec-path-from-shell-initialize))
+
 (use-package markdown-mode :ensure t
   :bind (("C-M-%" . vr/query-replace)))
 (use-package dockerfile-mode :ensure t)
 
 (use-package visual-regexp :ensure t)
 (use-package visual-regexp-steroids :ensure t)
+
+(use-package vterm :ensure t)
 
 (use-package rvm
   :ensure t
@@ -40,7 +44,7 @@
 (use-package moe-theme
   :ensure t
   :init
-  (load-theme 'moe-dark t))
+  (load-theme 'moe-dark 't))
 
 (use-package avy
   :ensure t
@@ -59,8 +63,8 @@
   :ensure t
   :bind (:map vertico-map
               ("RET" . vertico-directory-enter)
-              ("C-l" . vertico-directory-delete-word)
-  :config
+              ("C-l" . vertico-directory-delete-word))
+  :init
   (vertico-mode))
 
 (use-package marginalia
@@ -84,7 +88,6 @@
 (use-package consult-flycheck
   :ensure t)
 
-
 (use-package robe
   :ensure t
   :init
@@ -94,13 +97,11 @@
   :ensure t
   :init)
 
-
 (use-package tree-sitter
   :ensure t
   :hook (tree-sitter-after-on . tree-sitter-hl-mode)
   :config
   (global-tree-sitter-mode))
-
 
 (use-package tree-sitter-langs
   :ensure t)
@@ -168,7 +169,6 @@
   (setq wgrep-auto-save-buffer t)
   (setq wgrep-enable-key "w"))
 
-
 (use-package company
   :ensure t
   :config
@@ -196,6 +196,7 @@
   :init (global-flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq flycheck-emacs-lisp-load-path 'inherit)
   (setq-default flycheck-disabled-checkers
                 (append flycheck-disabled-checkers
                         '(javascript-jshint)))
@@ -416,7 +417,6 @@
     "go-mode-hook"
     (setq tab-width 4)))
 
-
 (use-package yaml-mode
   :ensure t)
 
@@ -499,9 +499,11 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("27a1dd6378f3782a593cc83e108a35c2b93e5ecc3bd9057313e1d88462701fcd" default))
  '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
+   '(vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
  '(resize-mini-windows t)
  '(warning-suppress-types '((comp))))
 (custom-set-faces
