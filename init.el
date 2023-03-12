@@ -240,7 +240,10 @@
          ("C-x M-g" . magit-dispatch-popup))
   :hook (after-save . magit-after-save-refresh-status)
   :config
-  (setq magit-delete-by-moving-to-trash nil))
+  (setq magit-delete-by-moving-to-trash nil)
+  (setq auth-sources '("~/.authinfo")))
+
+(use-package forge :ensure t)
 
 (use-package projectile
   :ensure t
@@ -409,6 +412,9 @@
   :config
   (editorconfig-mode 1))
 
+(use-package kubernetes
+  :ensure t
+  :commands (kubernetes-overview))
 
 (defun djr/kill-this-buffer ()
   "Kill the current buffer."
@@ -468,8 +474,9 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(visual-regexp-steroids visual-regexp rspec-mode robe robe-mode rvm rvm-mode dockerfile-mode markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
+   '(csharp-mode kubernetes lua-mode forge magit-forge visual-regexp-steroids visual-regexp rspec-mode robe robe-mode rvm rvm-mode dockerfile-mode markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
  '(resize-mini-windows t)
  '(warning-suppress-types '((comp))))
 (custom-set-faces
