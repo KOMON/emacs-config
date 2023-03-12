@@ -251,7 +251,10 @@
          ("C-x M-g" . magit-dispatch-popup))
   :hook (after-save . magit-after-save-refresh-status)
   :config
-  (setq magit-delete-by-moving-to-trash nil))
+  (setq magit-delete-by-moving-to-trash nil)
+  (setq auth-sources '("~/.authinfo")))
+
+(use-package forge :ensure t)
 
 (use-package projectile
   :ensure t
@@ -434,6 +437,9 @@
   :config
   (editorconfig-mode 1))
 
+(use-package kubernetes
+  :ensure t
+  :commands (kubernetes-overview))
 
 (defun djr/kill-this-buffer ()
   "Kill the current buffer."
@@ -493,12 +499,11 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(mustache-mode lsp-mode visual-regexp-steroids visual-regexp rspec-mode robe robe-mode rvm rvm-mode dockerfile-mode markdown-mode phpactor expand-region avy json-mode fic-mode slime tree-sitter haskell haskell-mode tree-sitter-langs graphql-mode company yaml-mode wgrep embark-consult embark consult-flycheck consult prescient orderless marginalia ws-butler web-mode vertico use-package tide terraform-mode syntax-subword sublime-themes rust-mode projectile prettier php-mode moe-theme magit js2-mode go-mode exec-path-from-shell editorconfig beacon afternoon-theme))
+   '(afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
  '(resize-mini-windows t)
- '(warning-suppress-types '((comp)))
- '(safe-local-variable-values
-   '((tide-tsserver-executable . "node_modules/typescript/bin/tsserver")))
+ '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
