@@ -1,4 +1,4 @@
-;;; init.el --- Load 'er up Johnny.
+;;; Init.el --- Load 'er up Johnny.
 ;;; Commentary:
 ;;; My havent' we grown over time?
 
@@ -29,7 +29,9 @@
 
 (use-package markdown-mode :ensure t
   :bind (("C-M-%" . vr/query-replace)))
-(use-package dockerfile-mode :ensure t)
+(use-package dockerfile-mode
+  :ensure t
+  :mode "\\Dockerfile")
 
 (use-package visual-regexp :ensure t)
 (use-package visual-regexp-steroids :ensure t)
@@ -270,7 +272,10 @@
 
 (use-package rust-mode
   :mode "\\.rs$"
-  :ensure t)
+  :ensure t
+  :hook ((rust-mode . lsp))
+  :config
+  (setq rust-format-on-save t))
 
 (use-package web-mode
   :ensure t
@@ -300,7 +305,7 @@
   :commands nvm-use-for-buffer)
 
 (use-package js2-mode
-  :mode ("\\.js$")
+  :mode ("\\.[cm]?js$")
   :ensure t
   :config
   (defun js-custom ()
@@ -503,8 +508,9 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
    '("27a1dd6378f3782a593cc83e108a35c2b93e5ecc3bd9057313e1d88462701fcd" default))
  '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
+   '(purescript-mode rg vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
  '(resize-mini-windows t)
+ '(tide-tsserver-executable nil)
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
