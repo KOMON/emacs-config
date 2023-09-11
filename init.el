@@ -251,7 +251,7 @@
   :demand t
   :ensure t
   :bind (("C-x g" . magit-status)
-         ("C-x M-g" . magit-dispatch-popup))
+         ("C-x M-g" . magit-dispatch))
   :hook (after-save . magit-after-save-refresh-status)
   :config
   (setq magit-delete-by-moving-to-trash nil)
@@ -279,13 +279,16 @@
 
 (use-package web-mode
   :ensure t
-  :mode ("\\.phtml$" "\\.[tj]sx$" "\\.html.erb")
+  :after tide
+  :mode ("\\.phtml$" "\\.html.erb")
   :init
   (defun my-web-mode-hook ()
     "Hooks for Web mode."
     (setq web-mode-markup-indent-offset 2)
     (setq web-mode-css-indent-offset 4)
-    (setq web-mode-code-indent-offset 2))
+    (setq web-mode-code-indent-offset 2)
+    (when (string-equal "tsx" (file-name-extension buffer-file-name))
+      (tide-setup)))
   :config
   (setq web-mode-engines-alist '(("php" . "\\.phtml$")))
   (add-hook 'web-mode-hook  'my-web-mode-hook)
@@ -302,7 +305,7 @@
   :hook ((typescript-mode . nvm-use-for-buffer)
          (js2-mode . nvm-use-for-buffer)
          (web-mode . nvm-use-for-buffer))
-  :commands nvm-use-for-buffer)
+  :commands (nvm-use-for-buffer))
 
 (use-package js2-mode
   :mode ("\\.[cm]?js$")
@@ -325,9 +328,28 @@
 (use-package mustache-mode
   :ensure t)
 
+(use-package add-node-modules-path
+  :ensure t)
+
 (use-package typescript-mode
   :ensure t
-  :mode "\\.m?tsx?$")
+  :mode "\\.m?tsx?$"
+  :hook ((typescript-mode . add-node-modules-path)))
+
+
+(defun tide--npmmonorepo ()
+  "Return a single path to the package-local typescript package directory for a monorepo or nil"
+  (-when-let (packages-folder (locate-dominating-file default-directory "package.json"))
+    (-when-let (monorepo-folder (locate-dominating-file (file-name-directory (directory-file-name packages-folder)) "package.json"))
+      (concat monorepo-folder "node_modules/typescript/lib/"))))
+(defun tide-tsserver-locater-npmlocal-npmmonorepo-projectile-npmglobal ()
+  "Locate tsserver through project-local or global system settings."
+  (or
+   (tide--locate-tsserver (tide--npm-local))
+   (tide--locate-tsserver (tide--npmmonorepo))
+   (tide--locate-tsserver (tide--project-package))
+   (tide--locate-tsserver (tide--npm-global))
+   (tide--locate-tsserver (tide--npm-global-usrlocal))))
 
 (use-package tide
   :ensure t
@@ -347,6 +369,7 @@
            (file-name-nondirectory (directory-file-name (projectile-project-root))))
       (flycheck-add-next-checker 'typescript-tide '(error . koan-lint)))
     (setq flycheck-checker 'typescript-tide))
+
   :bind (:map tide-mode-map
               ("M-?" . 'tide-references)
               ("M-'" . 'tide-documentation-at-point)
@@ -366,48 +389,6 @@
   :hook ((php-mode . php-custom)
          (php-mode . ws-butler-mode))
   :config
-  (defun php-custom ()
-    "php-mode-hook"
-    (advice-add 'djr/other-window-first :before 'eww-browse-url)
-    (setq c-basic-offset 4
-          php-manual-path "~/.emacs.d/docs/php"
-          browse-url-browser-function 'eww-browse-url)
-    (local-unset-key (kbd "C-c C-r"))
-    (set (make-local-variable 'company-backends)
-         '(company-phpactor company-files))
-    (make-local-variable 'eldoc-documentation-function)
-    (setq eldoc-documentation-function 'phpactor-hover))
-
-  (transient-define-prefix php-transient-menu ()
-    "Php"
-    [["Class"
-      ("cc" "Copy" phpactor-copy-class)
-      ("cn" "New" phpactor-create-new-class)
-      ("cr" "Move" phpactor-move-class)
-      ("ci" "Inflect" phpactor-inflect-class)
-      ("n"  "Namespace" phpactor-fix-namespace)]
-     ["Properties"
-      ("a"  "Accessor" phpactor-generate-accessors)
-      ("pc" "Constructor" phpactor-complete-constructor)
-      ("pm" "Add missing props" phpactor-complete-properties)
-      ("r" "Rename var locally" phpactor-rename-variable-local)
-      ("R" "Rename var in file" phpactor-rename-variable-file)]
-     ["Extract"
-      ("ec" "constant" phpactor-extract-constant)
-      ;;    ("ee" "expression" phpactor-extract-expression)
-      ;;    ("em"  "method" phpactor-extract-method)
-      ]
-     ["Methods"
-      ("i" "Implement Contracts" phpactor-implement-contracts)
-      ("m"  "Generate method" phpactor-generate-method)]
-     ["Navigate"
-      ("x" "List refs" phpactor-list-references)
-      ("X" "Replace refs" phpactor-replace-references)
-      ("."  "Goto def" phpactor-goto-definition)]
-     ["Phpactor"
-      ("s" "Status" phpactor-status)
-      ("u" "Install" phpactor-install-or-update)]])
-
   :bind (:map php-mode-map
               ("M-." . 'phpactor-goto-definition)
               ("M-?" . 'phpactor-find-references)
@@ -508,9 +489,12 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
    '("27a1dd6378f3782a593cc83e108a35c2b93e5ecc3bd9057313e1d88462701fcd" default))
  '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(purescript-mode rg vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient prettier projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
+   '(add-node-modules-path purescript-mode rg vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
  '(resize-mini-windows t)
  '(tide-tsserver-executable nil)
+ '(tide-tsserver-locator-function
+   'tide-tsserver-locater-npmlocal-npmmonorepo-projectile-npmglobal)
+ '(typescript-indent-level 2)
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
