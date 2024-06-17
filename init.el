@@ -342,13 +342,19 @@
           ad-do-it)
       ad-do-it)))
 
-(use-package nvm
+;; (use-package nvm
+;;   :ensure t
+;;   :hook ((typescript-mode . nvm-use-for-buffer)
+;;          (typescript-ts-mode . nvm-use-for-buffer)
+;;          (js2-mode . nvm-use-for-buffer)
+;;          (web-mode . nvm-use-for-buffer))
+;;   :commands (nvm-use-for-buffer))
+
+(use-package asdf
   :ensure t
-  :hook ((typescript-mode . nvm-use-for-buffer)
-         (typescript-ts-mode . nvm-use-for-buffer)
-         (js2-mode . nvm-use-for-buffer)
-         (web-mode . nvm-use-for-buffer))
-  :commands (nvm-use-for-buffer))
+  :straight (asdf :type git :host github :repo "tabfugnic/asdf.el")
+  :config
+  (asdf-enable))
 
 (use-package js2-mode
   :mode ("\\.[cm]?js$")
