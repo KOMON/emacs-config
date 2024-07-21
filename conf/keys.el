@@ -29,28 +29,6 @@
    ("C-y"        . insert-register)
    ("M-w"        . copy-to-register)))
 
-
-;; (setq 'bookmark-map
-;;       (keymap (108 . bookmark-bmenu-list)
-;;               (77 . bookmark-set-no-overwrite)
-;;               (109 . bookmark-set)
-;;               (98 . bookmark-jump)))
-
-;; (setq 'rectangle-map
-;;       (keymap
-;;        (27 keymap (119 . copy-rectangle-as-kill))
-;;        (78 . rectangle-number-lines)
-;;        (116 . string-rectangle)
-;;        (111 . open-rectangle)
-;;        (121 . yank-rectangle)
-;;        (100 . delete-rectangle)
-;;        (107 . kill-rectangle)
-;;        (99 . clear-rectangle)))
-
-
-
-
-
 (keybind "C-x C-j" join-line)
 (keybind "C-j" newline-and-indent)
 (keybind "M-SPC" cycle-spacing)

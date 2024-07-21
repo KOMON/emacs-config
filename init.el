@@ -23,12 +23,12 @@
   (add-to-list 'custom-theme-load-path "~/.emacs.d/elpa"))
 
 (use-package exec-path-from-shell
-  :if (eq system-type 'darwin)
   :ensure t
   :init (exec-path-from-shell-initialize))
 
 (use-package markdown-mode :ensure t
   :bind (("C-M-%" . vr/query-replace)))
+
 (use-package dockerfile-mode
   :ensure t
   :mode "\\Dockerfile")
@@ -37,12 +37,6 @@
 (use-package visual-regexp-steroids :ensure t)
 
 (use-package vterm :ensure t)
-
-(use-package rvm
-  :ensure t
-  :init
-  (rvm-use-default))
-
 (use-package moe-theme
   :ensure t
   :init
@@ -87,25 +81,14 @@
 (use-package prescient
   :ensure t)
 
-(use-package consult-flycheck
+(use-package lsp-mode :ensure t)
+
+(use-package clojure-ts-mode
+  :hook ((clojure-ts-mode . lsp))
   :ensure t)
+(use-package cider :ensure t)
 
-(use-package robe
-  :ensure t
-  :init
-  (global-robe-mode))
-
-(use-package rspec-mode
-  :ensure t
-  :init)
-
-(use-package tree-sitter
-  :ensure t
-  :hook (tree-sitter-after-on . tree-sitter-hl-mode)
-  :config
-  (global-tree-sitter-mode))
-
-(use-package tree-sitter-langs
+(use-package consult-flycheck
   :ensure t)
 
 (use-package consult
@@ -127,24 +110,6 @@
          ("C-c ! j" . consult-flycheck))
   :config
   (setq consult-project-root-function #'projectile-project-root))
-
-(use-package expand-region
-  :ensure t
-  :after embark
-  :bind (("C-=" . er/expand-region)
-         ("C-+" . er/contract-region))
-  :config
-  (embark-define-keymap embark-expand-region-keymap
-    ""
-    ("w" er/mark-word)
-    ("s" er/mark-symbol)
-    ("S" er/mark-symbol-with-prefix)
-    ("." er/mark-next-accessor)
-    ("m" er/mark-method-call)
-    ("'" er/mark-inside-quotes)
-    ("\"" er/mark-outside-quotes)
-    (";" er/mark-comment))
-  (define-key embark-region-map "=" embark-expand-region-keymap))
 
 (use-package embark
   :ensure t
@@ -186,11 +151,6 @@
 (use-package terraform-mode
   :ensure t
   :hook (terraform-mode . terraform-format-on-save-mode))
-
-(use-package fic-mode
-  :ensure t
-  :config
-  (add-hook 'prog-mode-hook 'fic-mode))
 
 (use-package flycheck
   :ensure t
@@ -266,10 +226,6 @@
   :config
   (setq projectile-switch-project-action #'projectile-commander)
   (projectile-mode t))
-
-(use-package graphql-mode
-  :ensure t)
-
 (use-package rust-mode
   :mode "\\.rs$"
   :ensure t
@@ -331,68 +287,15 @@
 (use-package add-node-modules-path
   :ensure t)
 
-(use-package typescript-mode
+(use-package typescript-ts-mode
   :ensure t
   :mode "\\.m?tsx?$"
-  :hook ((typescript-mode . add-node-modules-path)))
-
-
-(defun tide--npmmonorepo ()
-  "Return a single path to the package-local typescript package directory for a monorepo or nil"
-  (-when-let (packages-folder (locate-dominating-file default-directory "package.json"))
-    (-when-let (monorepo-folder (locate-dominating-file (file-name-directory (directory-file-name packages-folder)) "package.json"))
-      (concat monorepo-folder "node_modules/typescript/lib/"))))
-(defun tide-tsserver-locater-npmlocal-npmmonorepo-projectile-npmglobal ()
-  "Locate tsserver through project-local or global system settings."
-  (or
-   (tide--locate-tsserver (tide--npm-local))
-   (tide--locate-tsserver (tide--npmmonorepo))
-   (tide--locate-tsserver (tide--project-package))
-   (tide--locate-tsserver (tide--npm-global))
-   (tide--locate-tsserver (tide--npm-global-usrlocal))))
-
-(use-package tide
-  :ensure t
-  :after projectile
-  :commands (tide-setup tide-mode tide-custom)
-  :hook ((typescript-mode . tide-custom)
-         (js2-mode . tide-custom)
-         (web-mode . tide-custom))
-  :config
-  (defun tide-custom ()
-    "tide-mode-hook"
-    (interactive)
-    (tide-setup)
-    (tide-hl-identifier-mode +1)
-    (when (string-equal
-           "purpose"
-           (file-name-nondirectory (directory-file-name (projectile-project-root))))
-      (flycheck-add-next-checker 'typescript-tide '(error . koan-lint)))
-    (setq flycheck-checker 'typescript-tide))
-
-  :bind (:map tide-mode-map
-              ("M-?" . 'tide-references)
-              ("M-'" . 'tide-documentation-at-point)
-              ("C-c C-t" . 'typescript-transient-menu)))
-
+  :hook ((typescript-ts-mode . add-node-modules-path)
+         (typescript-ts-mode . lsp)))
 (use-package prettier
   :ensure t
   :config
   (global-prettier-mode))
-
-(use-package haskell-mode :ensure t)
-
-(use-package phpactor :ensure t :after php-mode)
-(use-package php-mode
-  :ensure t
-  :after magit
-  :hook ((php-mode . php-custom)
-         (php-mode . ws-butler-mode))
-  :config
-  :bind (:map php-mode-map
-              ("M-." . 'phpactor-goto-definition)
-              ("M-?" . 'phpactor-find-references)
-              ("C-c C-p" . 'php-transient-menu)))
 
 (use-package go-mode
   :ensure t
@@ -422,10 +325,6 @@
   :ensure t
   :config
   (editorconfig-mode 1))
-
-(use-package kubernetes
-  :ensure t
-  :commands (kubernetes-overview))
 
 (defun djr/kill-this-buffer ()
   "Kill the current buffer."
@@ -485,15 +384,83 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(connection-local-criteria-alist
+   '(((:application tramp :protocol "flatpak")
+      tramp-container-connection-local-default-flatpak-profile)
+     ((:application tramp) tramp-connection-local-default-system-profile
+      tramp-connection-local-default-shell-profile)))
+ '(connection-local-profile-alist
+   '((tramp-container-connection-local-default-flatpak-profile
+      (tramp-remote-path "/app/bin" tramp-default-remote-path "/bin" "/usr/bin"
+                         "/sbin" "/usr/sbin" "/usr/local/bin" "/usr/local/sbin"
+                         "/local/bin" "/local/freeware/bin" "/local/gnu/bin"
+                         "/usr/freeware/bin" "/usr/pkg/bin" "/usr/contrib/bin"
+                         "/opt/bin" "/opt/sbin" "/opt/local/bin"))
+     (tramp-connection-local-darwin-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o"
+                                        "pid,uid,user,gid,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o" "state=abcde" "-o"
+                                        "ppid,pgid,sess,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etime,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format (pid . number) (euid . number)
+                                          (user . string) (egid . number)
+                                          (comm . 52) (state . 5)
+                                          (ppid . number) (pgrp . number)
+                                          (sess . number) (ttname . string)
+                                          (tpgid . number) (minflt . number)
+                                          (majflt . number)
+                                          (time . tramp-ps-time) (pri . number)
+                                          (nice . number) (vsize . number)
+                                          (rss . number) (etime . tramp-ps-time)
+                                          (pcpu . number) (pmem . number) (args)))
+     (tramp-connection-local-busybox-ps-profile
+      (tramp-process-attributes-ps-args "-o"
+                                        "pid,user,group,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o" "stat=abcde" "-o"
+                                        "ppid,pgid,tty,time,nice,etime,args")
+      (tramp-process-attributes-ps-format (pid . number) (user . string)
+                                          (group . string) (comm . 52)
+                                          (state . 5) (ppid . number)
+                                          (pgrp . number) (ttname . string)
+                                          (time . tramp-ps-time) (nice . number)
+                                          (etime . tramp-ps-time) (args)))
+     (tramp-connection-local-bsd-ps-profile
+      (tramp-process-attributes-ps-args "-acxww" "-o"
+                                        "pid,euid,user,egid,egroup,comm=abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                        "-o"
+                                        "state,ppid,pgid,sid,tty,tpgid,minflt,majflt,time,pri,nice,vsz,rss,etimes,pcpu,pmem,args")
+      (tramp-process-attributes-ps-format (pid . number) (euid . number)
+                                          (user . string) (egid . number)
+                                          (group . string) (comm . 52)
+                                          (state . string) (ppid . number)
+                                          (pgrp . number) (sess . number)
+                                          (ttname . string) (tpgid . number)
+                                          (minflt . number) (majflt . number)
+                                          (time . tramp-ps-time) (pri . number)
+                                          (nice . number) (vsize . number)
+                                          (rss . number) (etime . number)
+                                          (pcpu . number) (pmem . number) (args)))
+     (tramp-connection-local-default-shell-profile (shell-file-name . "/bin/sh")
+                                                   (shell-command-switch . "-c"))
+     (tramp-connection-local-default-system-profile (path-separator . ":")
+                                                    (null-device . "/dev/null"))))
  '(custom-safe-themes
    '("27a1dd6378f3782a593cc83e108a35c2b93e5ecc3bd9057313e1d88462701fcd" default))
  '(flycheck-checker-error-threshold 1000)
  '(package-selected-packages
-   '(add-node-modules-path purescript-mode rg vterm afternoon-theme avy beacon company consult consult-flycheck csharp-mode dockerfile-mode editorconfig embark embark-consult exec-path-from-shell expand-region fic-mode forge go-mode graphql-mode haskell haskell-mode js2-mode json-mode kubernetes lsp-mode lua-mode magit magit-forge marginalia markdown-mode moe-theme mustache-mode orderless php-mode phpactor prescient projectile robe robe-mode rspec-mode rust-mode rvm rvm-mode slime sublime-themes syntax-subword terraform-mode tide tree-sitter tree-sitter-langs use-package vertico visual-regexp visual-regexp-steroids web-mode wgrep ws-butler yaml-mode afternoon-theme))
+   '(add-node-modules-path avy beacon cider
+                           clojure-ts-mode company consult consult-flycheck
+                           dockerfile-mode editorconfig embark
+                           embark-consult exec-path-from-shell expand-region f
+                           forge go-mode 
+                           js2-mode json-mode kubernetes lsp-mode
+                           lua-mode magit magit-forge marginalia markdown-mode
+                           moe-theme mustache-mode orderless php-mode phpactor
+                           prescient projectile rg rust-mode slime
+                           syntax-subword terraform-mode 
+                           use-package vertico
+                           visual-regexp visual-regexp-steroids vterm web-mode
+                           wgrep ws-butler yaml-mode))
  '(resize-mini-windows t)
- '(tide-tsserver-executable nil)
- '(tide-tsserver-locator-function
-   'tide-tsserver-locater-npmlocal-npmmonorepo-projectile-npmglobal)
  '(typescript-indent-level 2)
  '(warning-suppress-types '((comp))))
 (custom-set-faces
@@ -501,6 +468,6 @@ Also, if the last command was a copy - skip past all the expand-region cruft."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "#303030" :foreground "#c6c6c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight medium :height 140 :width normal :foundry "nil" :family "Menlo"))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "#303030" :foreground "#c6c6c6" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight medium :height 120 :width normal :foundry "nil" :family "Menlo"))))
  '(mode-line-active ((t (:inherit mode-line)))))
 
