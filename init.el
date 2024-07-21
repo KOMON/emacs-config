@@ -388,7 +388,9 @@
   :mode (("\\.m?ts$" . typescript-ts-mode)
          ("\\.m?tsx$" . tsx-ts-mode))
   :hook ((typescript-ts-mode . add-node-modules-path)
-         (tsx-ts-mode . add-node-modules-path)))
+         (tsx-ts-mode . add-node-modules-path)
+         (typescript-ts-mode . prettier-mode)
+         (tsx-ts-mode . prettier-mode)))
   
 
 (defun tide--npmmonorepo ()
