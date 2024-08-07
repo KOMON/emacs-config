@@ -1,9 +1,0 @@
-# key: mage-add-table
-# name: Magento InstallSchema Add Table
-# --
-if (!\$${1:installer}->tableExists('${2:model}')) {
-    $table = $\$1->getConnection()->newTable(
-        \$$1->getTable('$2')
-    )->setComment('${3:comment}')$0;
-    \$$1->getConnection()->createTable($table);
-}

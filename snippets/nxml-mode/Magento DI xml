@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: Magento DI xml
-# key: mage-di-xml
-# --
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-$0
-</config>
