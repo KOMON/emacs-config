@@ -95,7 +95,7 @@
 (use-package modus-themes
   :ensure t
   :init
-  (load-theme 'modus-vivendi 't))
+  (load-theme 'modus-vivendi-tritanopia 't))
 
 (use-package ws-butler
   :ensure t
@@ -126,6 +126,11 @@
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package prettier
+  :ensure t
+  :init
+  (global-prettier-mode))
 
 (use-package embark
   :ensure t
@@ -205,7 +210,9 @@
    ;; Make filling see a single space after period as the end of a sentence
    sentence-end-double-space nil
    ;; Make the cursor as wide as the character under it (important for tabs or wide unicode characters)
-   x-stretch-cursor t)
+   x-stretch-cursor t
+   ;; turn off auto-saving
+   auto-save-default nil)
   (scroll-bar-mode -1)
   ;; Turn of the toolbar
   (tool-bar-mode -1)
