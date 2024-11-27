@@ -47,6 +47,49 @@
 
 (use-package forge :ensure t)
 
+
+
+
+(use-package eglot
+  :config
+  (defun deno-reference-file-name-handler (operation &rest args)
+    "Takes filenames like 'deno:/asset/lib.deno.web.d.ts' and
+resolves them using the Deno LSP den/virtualTextDocument endpoint.
+
+Currently only handles 'get-file-buffer and 'file-exists-p since those are specifically
+what's called in the xref-goto-xref resolution
+
+* Uses eglot--servers-by-xrefed-file to find a deno lsp server to ask
+* Issues a deno/virtualTextDocument LSP command to get the file text
+* Dumps it into a buffer
+* Returns the buffer"
+    (let* ((filename (car args))
+           (server (or (eglot-current-server) (gethash filename eglot--servers-by-xrefed-file))))
+      (cond
+       ((eq operation 'file-exists-p) (not (eq server nil)))
+       ((eq operation 'get-file-buffer)
+        (let ((buffer (get-buffer-create filename)))
+          (with-current-buffer buffer
+            (unless buffer-read-only
+              (when-let ((deno-part (substring filename (string-match "\\(deno:/.+\.ts\\)" filename)))
+                         (response (jsonrpc-request server :deno/virtualTextDocument `(:textDocument (:uri ,deno-part)))))
+
+                (insert response)
+                (setq buffer-file-name filename)
+                (setq buffer-read-only t)
+                (set-buffer-modified-p nil)
+                (goto-char (point-min))
+                (typescript-ts-mode)
+                (current-buffer))))
+          buffer))
+       (t (let ((inhibit-file-name-handlers
+                 (cons 'deno-reference-file-name-handler
+                       (and (eq inhibit-file-name-operation operation)
+                            inhibit-file-name-handlers)))
+                (inhibit-file-name-operation operation))
+            (apply operation args))))))
+  (add-to-list 'file-name-handler-alist '("deno:/.+\.ts" . deno-reference-file-name-handler)))
+
 (use-package go-ts-mode
   :mode "\\.go$"
   :hook ((go-mode . eglot)
@@ -68,11 +111,20 @@
   :config
   (global-corfu-mode 1))
 
+(use-package terraform-mode
+  :ensure t)
+
 (use-package typescript-ts-mode
   :mode (("\\.m?ts$" . typescript-ts-mode)
          ("\\.m?tsx$" . tsx-ts-mode))
   :hook ((typescript-ts-mode . add-node-modules-path)
-         (tsx-ts-mode . add-node-modules-path)))
+         (typescript-ts-mode . eglot-ensure)
+         (typescript-ts-mode . flymake-eslint-enable)
+         (typescript-ts-mode . prettier-mode)
+         (tsx-ts-mode . add-node-modules-path)
+         (tsx-ts-mode . eglot-ensure)
+         (tsx-ts-mode . flymake-eslint-enable)
+         (tsx-ts-mode . prettier-mode)))
 
 (use-package rust-ts-mode
   :mode "\\.rs$"
@@ -102,6 +154,31 @@
   :hook (prog-mode . ws-butler-mode)
   :init
   (ws-butler-global-mode 1))
+
+(defun djr/use-local-eslint ()
+  "Set project's `node_modules' binary eslint as first priority.
+    If nothing is found, keep the default value flymake-eslint set or
+    your override of `flymake-eslint-executable-name.'"
+  (interactive)
+  (let* ((root (locate-dominating-file (buffer-file-name) "node_modules"))
+         (eslint (and root
+                      (expand-file-name "node_modules/.bin/eslint"
+                                        root))))
+    (while (eq eslint nil))
+    (when (and eslint (file-executable-p eslint))
+      (setq-local flymake-eslint-executable-name eslint)
+      (message (format "Found local ESLINT! Setting: %s" eslint))
+      (flymake-eslint-enable))))
+
+
+(use-package flymake
+  :demand t)
+
+(use-package flymake-eslint
+  :ensure t
+  :demand t                             
+  :config
+  (setq flymake-eslint-prefer-json-diagnostics t))
 
 (use-package consult
   :after (flymake)
@@ -134,6 +211,7 @@
 
 (use-package embark
   :ensure t
+  :demand t
   :bind (("C-z" . embark-act)))
 
 (use-package embark-consult
@@ -145,8 +223,19 @@
 (use-package syntax-subword
   :ensure t
   :config
-  (setq syntax-subword-skip-spaces t)
-  (global-syntax-subword-mode t))
+  (setq syntax-subword-skip-spaces t))
+
+(use-package avy
+  :ensure t
+  :bind (("M-a" . avy-goto-char-timer))
+  :config
+  (defun avy-action-embark (pt)
+    (save-excursion
+      (goto-char pt)
+      (embark-act))
+    (select-window
+     (cdr (ring-ref avy-ring 0)))
+    t))
 
 (use-package emacs
   :init
@@ -167,12 +256,11 @@
   (global-set-key (kbd "C-c ! P") 'flymake-show-project-diagnostics)
   (global-set-key (kbd "C-x C-j") 'join-line)
   (global-set-key (kbd "C-j") 'newline-and-indent)
-  (global-unset-key (kbd "C-z"))
   (global-unset-key (kbd "C-x C-z"))
   (global-unset-key (kbd "M-`"))
 
   (if (eq system-type 'darwin)
-    (setq mac-command-modifier 'meta))
+      (setq mac-command-modifier 'meta))
 
   (setq
    ;; Turn off the splash screen
@@ -229,7 +317,7 @@
   (column-number-mode t)
   ;; use 'y-or-n-p everywhere
   (fset 'yes-or-no-p 'y-or-n-p)
-)
+  )
 
 (defun djr/kill-this-buffer ()
   "Kill the current buffer."
@@ -262,19 +350,10 @@
   "Colorize compilation buffer with ansi colors."
   (ansi-color-apply-on-region compilation-filter-start (point)))
 
+(add-hook 'compilation-filter-hook 'djr/colorize-compilation-buffer)
+
 (put 'set-goal-column 'disabled nil)
 
 (provide 'init)
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(treesit-font-lock-level 4))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(put 'downcase-region 'disabled nil)
