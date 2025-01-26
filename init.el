@@ -88,7 +88,19 @@ what's called in the xref-goto-xref resolution
                             inhibit-file-name-handlers)))
                 (inhibit-file-name-operation operation))
             (apply operation args))))))
-  (add-to-list 'file-name-handler-alist '("deno:/.+\.ts" . deno-reference-file-name-handler)))
+  (add-to-list 'file-name-handler-alist '("deno:/.+\.ts" . deno-reference-file-name-handler))
+  (setf (cdr (assoc
+       '((js-mode :language-id "javascript")
+         (js-ts-mode :language-id "javascript")
+         (tsx-ts-mode :language-id "typescriptreact")
+         (typescript-ts-mode :language-id "typescript")
+         (typescript-mode :language-id "typescript"))
+       eglot-server-programs))
+      '("npx"
+        "--node-options='--max-old-space-size=8192'"
+        "typescript-language-server"
+        "--stdio"
+        :initializationOptions (:maxTsServerMemory 8192)))
 
 (use-package go-ts-mode
   :mode "\\.go$"
@@ -109,14 +121,30 @@ what's called in the xref-goto-xref resolution
 (use-package corfu
   :ensure t
   :config
-  (global-corfu-mode 1))
+  (global-corfu-mode 1)
+  (setq corfu-popupinfo-delay '(1.25 . 0.5))
+  (corfu-popupinfo-mode 1)
+
+  (with-eval-after-load 'savehist
+    (corfu-history-mode 1)
+    (add-to-list 'savehist-additional-variables 'corfu-history)))
+
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :bind
+  (:map dired-mode-map
+    ("<tab>" . dired-subtree-toggle)
+    ("TAB" . dired-subtree-toggle)
+    ("<backtab>" . dired-subtree-remove)
+    ("S-TAB" . dired-subtree-remove)))
 
 (use-package terraform-mode
   :ensure t)
 
 (use-package typescript-ts-mode
-  :mode (("\\.m?ts$" . typescript-ts-mode)
-         ("\\.m?tsx$" . tsx-ts-mode))
+  :mode (("\\.m?(t|j)s$" . typescript-ts-mode)
+         ("\\.m?(t|j)sx$" . tsx-ts-mode))
   :hook ((typescript-ts-mode . add-node-modules-path)
          (typescript-ts-mode . eglot-ensure)
          (typescript-ts-mode . flymake-eslint-enable)
@@ -203,6 +231,10 @@ what's called in the xref-goto-xref resolution
   (setq completion-styles '(orderless)
         completion-category-defaults nil
         completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package savehist
+  :ensure nil
+  :hook (after-init . savehist-mode))
 
 (use-package prettier
   :ensure t
